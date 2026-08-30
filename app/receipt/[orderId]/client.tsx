@@ -17,7 +17,7 @@ export function ReceiptClient({ order, subtotal, taxAmount, taxPercent, paperWid
   const widthClass = paperWidth === 58 ? "max-w-[58mm]" : "max-w-[80mm]";
 
   return (
-    <div className={`mx-auto ${widthClass} text-black font-mono text-xs p-4 print:p-0`}>
+    <div className={`mx-auto w-full ${widthClass} text-black font-mono text-xs p-4 print:p-0`}>
       
       {/* Header */}
       <div className="text-center mb-4">

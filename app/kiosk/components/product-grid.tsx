@@ -26,7 +26,7 @@ export function ProductGrid({ products, activeCategoryId, onProductClick }: Prod
 
   return (
     <div className="flex-1 p-6 overflow-y-auto">
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-32">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-32">
         {filteredProducts.map((product) => (
           <ProductCard 
             key={product.id} 

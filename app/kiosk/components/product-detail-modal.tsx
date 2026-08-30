@@ -396,8 +396,8 @@ export function ProductDetailModal({ product, isOpen, onClose }: ProductDetailMo
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 bg-background border-t shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-10 flex items-center justify-between gap-6 shrink-0">
-          <div className="flex items-center gap-4 bg-muted p-2 rounded-2xl">
+        <div className="p-6 bg-background border-t shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-10 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shrink-0">
+          <div className="flex items-center justify-center gap-4 bg-muted p-2 rounded-2xl w-full md:w-auto">
             <Button 
               variant="ghost" 
               size="icon" 
@@ -420,7 +420,7 @@ export function ProductDetailModal({ product, isOpen, onClose }: ProductDetailMo
 
           <Button 
             size="lg" 
-            className="flex-1 h-20 text-2xl rounded-2xl shadow-lg hover:scale-[1.02] transition-transform"
+            className="flex-1 w-full md:w-auto h-20 text-xl md:text-2xl rounded-2xl shadow-lg hover:scale-[1.02] transition-transform"
             onClick={handleAddToOrder}
           >
             Add to Order - ₹{calculateTotal().toFixed(2)}

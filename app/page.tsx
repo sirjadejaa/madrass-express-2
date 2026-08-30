@@ -11,21 +11,21 @@ export default function Home() {
         <div className="absolute top-[60%] -right-[10%] w-[60%] h-[60%] rounded-full bg-orange-600 blur-[150px]"></div>
       </div>
 
-      <div className="z-10 flex flex-col items-center max-w-4xl px-6 text-center">
-        <div className="mb-8 p-6 bg-white shadow-2xl rounded-full border-4 border-amber-500 flex items-center justify-center w-40 h-40">
-          <UtensilsCrossed className="w-20 h-20 text-amber-600" />
+      <div className="z-10 flex flex-col items-center max-w-4xl px-4 sm:px-6 text-center w-full">
+        <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-white shadow-2xl rounded-full border-4 border-amber-500 flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40">
+          <UtensilsCrossed className="w-16 h-16 sm:w-20 sm:h-20 text-amber-600" />
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold text-stone-900 tracking-tight mb-4">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-stone-900 tracking-tight mb-4">
           MADRASS <span className="text-amber-600">EXPRESS</span>
         </h1>
         
-        <p className="text-xl md:text-3xl text-stone-600 mb-12 font-medium">
+        <p className="text-lg sm:text-xl md:text-3xl text-stone-600 mb-8 sm:mb-12 font-medium">
           Authentic South Indian Taste
         </p>
 
         <Link href="/kiosk">
-          <Button size="lg" className="h-20 px-12 text-2xl font-bold rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1">
+          <Button size="lg" className="h-16 px-8 text-lg sm:h-20 sm:px-12 sm:text-2xl font-bold rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 w-full sm:w-auto">
             START YOUR ORDER
           </Button>
         </Link>

@@ -130,7 +130,7 @@ export function ProductForm({ isOpen, onClose, initialData, categories, restaura
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -182,7 +182,7 @@ export function ProductForm({ isOpen, onClose, initialData, categories, restaura
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="price"
@@ -211,7 +211,7 @@ export function ProductForm({ isOpen, onClose, initialData, categories, restaura
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border rounded-md p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border rounded-md p-4">
               <FormField
                 control={form.control}
                 name="isVegetarian"
@@ -290,7 +290,7 @@ export function ProductForm({ isOpen, onClose, initialData, categories, restaura
             {isComboWatcher && (
               <div className="space-y-4 border rounded-md p-4 bg-muted/20">
                 <h4 className="font-semibold text-sm">Combo Items</h4>
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                   {allProducts.filter(p => p.id !== initialData?.id && !p.isCombo).map(p => {
                     const currentItems = form.watch("comboItems");
                     const existing = currentItems.find(ci => ci.productId === p.id);
@@ -329,7 +329,7 @@ export function ProductForm({ isOpen, onClose, initialData, categories, restaura
             {!isComboWatcher && (
               <div className="space-y-4 border rounded-md p-4 bg-muted/20">
                 <h4 className="font-semibold text-sm">Upselling Recommendations</h4>
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                   {allProducts.filter(p => p.id !== initialData?.id).map(p => {
                     const recs = form.watch("recommendations");
                     const isRec = recs.includes(p.id);

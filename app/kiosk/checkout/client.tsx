@@ -131,15 +131,15 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
   };
 
   return (
-    <div className="flex h-full flex-col lg:flex-row p-6 gap-8 max-w-7xl mx-auto">
+    <div className="flex h-full flex-col lg:flex-row p-4 lg:p-6 gap-4 lg:gap-8 max-w-7xl mx-auto overflow-y-auto lg:overflow-hidden w-full">
       
       {/* Left Column: Form */}
-      <div className="flex-1 flex flex-col bg-background rounded-3xl p-8 shadow-sm overflow-y-auto">
+      <div className="flex-none lg:flex-1 flex flex-col bg-background rounded-3xl p-6 lg:p-8 shadow-sm lg:overflow-y-auto shrink-0">
         <Button variant="ghost" className="self-start mb-6 text-muted-foreground" onClick={() => router.push("/kiosk/menu")}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Menu
         </Button>
         
-        <h2 className="text-3xl font-bold mb-8">Customer Details</h2>
+        <h2 className="text-2xl lg:text-3xl font-bold mb-8">Customer Details</h2>
 
         {errors.length > 0 && (
           <div className="bg-destructive/10 text-destructive p-4 rounded-xl mb-6">
@@ -213,7 +213,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
       </div>
 
       {/* Right Column: Summary */}
-      <div className="w-full lg:w-[450px] flex flex-col bg-card rounded-3xl overflow-hidden shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)]">
+      <div className="flex-none w-full lg:w-[450px] flex flex-col bg-card rounded-3xl overflow-hidden shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)]">
         <div className="p-6 bg-muted/30 border-b">
           <h3 className="text-2xl font-bold">Order Summary</h3>
         </div>

@@ -38,7 +38,7 @@ export function OrderFlowModal({ tables }: { tables: { id: string, number: strin
           </DialogHeader>
 
           {!selectedType ? (
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
               <Button
                 variant="outline"
                 className="h-64 flex flex-col items-center justify-center gap-6 rounded-3xl border-2 hover:border-primary hover:bg-primary/5 transition-all"

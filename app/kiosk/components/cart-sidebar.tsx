@@ -25,7 +25,7 @@ export function CartSidebar() {
 
   if (cart.length === 0) {
     return (
-      <div className="w-80 lg:w-96 border-l bg-card flex flex-col h-full">
+      <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l bg-card flex flex-col lg:h-full">
         <div className="p-6 bg-muted/50 border-b">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <ShoppingBag className="w-6 h-6" /> Your Order
@@ -46,7 +46,7 @@ export function CartSidebar() {
   }
 
   return (
-    <div className="w-80 lg:w-96 border-l bg-card flex flex-col h-full shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] z-20">
+    <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l bg-card flex flex-col lg:h-full shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] lg:shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] z-20 shrink-0">
       <div className="p-6 bg-muted/50 border-b flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">

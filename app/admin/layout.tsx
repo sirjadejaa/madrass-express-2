@@ -147,18 +147,19 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="container flex h-16 items-center justify-between py-4">
-          <div className="flex gap-2 items-center">
+        <div className="container flex h-16 items-center justify-between py-4 gap-2">
+          <div className="flex gap-2 items-center shrink-0">
             <UtensilsCrossed className="h-6 w-6" />
-            <h1 className="text-xl font-bold tracking-tight">Madrass Express Admin</h1>
+            <h1 className="text-xl font-bold tracking-tight hidden sm:block">Madrass Express Admin</h1>
+            <h1 className="text-xl font-bold tracking-tight sm:hidden">Admin</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-sm">
+          <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
+            <div className="text-sm hidden sm:block truncate">
               Logged in as <span className="font-semibold">{session?.user?.name || session?.user?.email}</span> ({session?.user?.role})
             </div>
-            <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/login" })}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
+            <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/login" })} className="shrink-0">
+              <LogOut className="sm:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
@@ -169,7 +170,13 @@ export default function AdminLayout({
             <SidebarNav items={sidebarNavItems} />
           </div>
         </aside>
-        <main className="flex w-full flex-col overflow-hidden py-6">
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden py-4 overflow-x-auto no-scrollbar w-full border-b mb-2 -mx-4 px-4 w-[calc(100%+2rem)]">
+          <SidebarNav items={sidebarNavItems} className="flex-row space-x-2" />
+        </div>
+
+        <main className="flex w-full flex-col overflow-hidden py-4 md:py-6">
           {children}
         </main>
       </div>

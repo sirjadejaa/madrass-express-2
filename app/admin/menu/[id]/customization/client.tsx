@@ -64,7 +64,7 @@ export function CustomizationClient({ product }: { product: any }) {
       ) : (
         <div className="p-4 border rounded-xl space-y-4 bg-muted/20">
           <h3 className="font-bold">New Option Group</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Group Name (e.g. Size, Crust, Extras)</Label>
               <Input value={groupName} onChange={e => setGroupName(e.target.value)} />

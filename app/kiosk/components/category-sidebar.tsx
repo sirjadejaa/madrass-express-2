@@ -16,11 +16,11 @@ interface CategorySidebarProps {
 
 export function CategorySidebar({ categories, activeCategoryId, onSelectCategory }: CategorySidebarProps) {
   return (
-    <div className="w-48 lg:w-64 border-r bg-card flex flex-col h-full overflow-y-auto no-scrollbar">
-      <div className="p-4 flex-1 space-y-2">
+    <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r bg-card flex lg:flex-col shrink-0 overflow-x-auto lg:overflow-y-auto no-scrollbar">
+      <div className="p-4 flex lg:flex-col gap-2 lg:gap-2">
         <Button
           variant={activeCategoryId === null ? "default" : "ghost"}
-          className={`w-full justify-start text-lg h-16 rounded-2xl ${activeCategoryId === null ? "shadow-md" : ""}`}
+          className={`shrink-0 lg:w-full justify-start text-lg h-12 lg:h-16 rounded-2xl ${activeCategoryId === null ? "shadow-md" : ""}`}
           onClick={() => onSelectCategory(null)}
         >
           All Items
@@ -29,7 +29,7 @@ export function CategorySidebar({ categories, activeCategoryId, onSelectCategory
           <Button
             key={category.id}
             variant={activeCategoryId === category.id ? "default" : "ghost"}
-            className={`w-full justify-start text-lg h-16 rounded-2xl ${activeCategoryId === category.id ? "shadow-md" : ""}`}
+            className={`shrink-0 lg:w-full justify-start text-lg h-12 lg:h-16 rounded-2xl ${activeCategoryId === category.id ? "shadow-md" : ""}`}
             onClick={() => onSelectCategory(category.id)}
           >
             {category.name}

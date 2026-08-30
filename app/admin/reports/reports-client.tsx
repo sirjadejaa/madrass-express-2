@@ -301,7 +301,7 @@ export function ReportsClient() {
               </CardHeader>
               <CardContent>
                 {data.productPerformance.length > 0 ? (
-                  <div className="rounded-md border">
+                  <div className="rounded-md border overflow-x-auto w-full">
                     <table className="w-full text-sm">
                       <thead className="bg-muted/50 border-b">
                         <tr>

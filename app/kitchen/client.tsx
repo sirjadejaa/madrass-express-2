@@ -114,7 +114,7 @@ export function KDSClient() {
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-full overflow-y-auto md:overflow-hidden pb-4">
         
         {/* NEW COLUMN */}
         <KDSColumn 
@@ -153,7 +153,7 @@ export function KDSClient() {
 
 function KDSColumn({ title, orders, actionLabel, onAction, color, headerColor }: any) {
   return (
-    <div className={`flex flex-col border-2 rounded-xl overflow-hidden bg-slate-900/50 ${color}`}>
+    <div className={`flex flex-col border-2 rounded-xl overflow-hidden bg-slate-900/50 ${color} h-[400px] md:h-auto min-h-0`}>
       <div className={`p-4 font-bold tracking-widest text-center shadow-md ${headerColor}`}>
         {title} ({orders.length})
       </div>

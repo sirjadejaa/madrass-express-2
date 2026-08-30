@@ -58,7 +58,7 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
   }, [resetKiosk, router]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-muted/20 relative">
+    <div className="flex flex-col lg:flex-row h-full w-full overflow-hidden bg-muted/20 relative">
       <OrderFlowModal tables={tables} />
       
       {/* Back Button */}
@@ -74,14 +74,14 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
         <ArrowLeft className="w-6 h-6" />
       </Button>
 
-      <div className="pt-20 lg:pt-4 flex-1 flex h-full">
+      <div className="pt-20 lg:pt-4 flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
         <CategorySidebar 
           categories={categories}
           activeCategoryId={activeCategoryId}
           onSelectCategory={setActiveCategoryId}
         />
         
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full p-6 pb-2 z-10 bg-gradient-to-b from-muted/50 to-transparent pointer-events-none hidden lg:block">
             <h1 className="text-3xl font-black text-foreground drop-shadow-sm">{restaurantName}</h1>
           </div>

@@ -85,35 +85,35 @@ export function DisplayClient({ initialSettings }: { initialSettings: any }) {
         </div>
       )}
 
-      <div className="flex-1 grid grid-cols-2 gap-12 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12 overflow-y-auto md:overflow-hidden pb-4">
         
         {/* PREPARING COLUMN */}
-        <div className="flex flex-col border-4 border-slate-800 rounded-3xl overflow-hidden bg-slate-900/50">
-          <div className="bg-amber-500 py-6 text-center text-4xl font-black tracking-widest text-black">
+        <div className="flex flex-col border-4 border-slate-800 rounded-3xl overflow-hidden bg-slate-900/50 min-h-[300px]">
+          <div className="bg-amber-500 py-4 md:py-6 text-center text-2xl md:text-4xl font-black tracking-widest text-black">
             NOW PREPARING
           </div>
-          <div className="flex-1 p-8 grid grid-cols-2 gap-6 place-content-start overflow-hidden">
+          <div className="flex-1 p-4 md:p-8 grid grid-cols-2 gap-4 md:gap-6 place-content-start overflow-y-auto">
             {preparing.map((order) => (
-              <div key={order.id} className="text-6xl font-black text-center text-slate-300 py-4">
+              <div key={order.id} className="text-4xl md:text-6xl font-black text-center text-slate-300 py-2 md:py-4">
                 #{order.token.tokenNumber}
               </div>
             ))}
             {preparing.length === 0 && (
-              <div className="col-span-2 text-center text-slate-600 text-3xl mt-12 font-bold">...</div>
+              <div className="col-span-2 text-center text-slate-600 text-xl md:text-3xl mt-6 md:mt-12 font-bold">...</div>
             )}
           </div>
         </div>
 
         {/* READY COLUMN */}
-        <div className="flex flex-col border-4 border-emerald-900 rounded-3xl overflow-hidden bg-emerald-950/20">
-          <div className="bg-emerald-500 py-6 text-center text-4xl font-black tracking-widest text-black">
+        <div className="flex flex-col border-4 border-emerald-900 rounded-3xl overflow-hidden bg-emerald-950/20 min-h-[300px]">
+          <div className="bg-emerald-500 py-4 md:py-6 text-center text-2xl md:text-4xl font-black tracking-widest text-black">
             READY FOR PICKUP
           </div>
-          <div className="flex-1 p-8 grid grid-cols-2 gap-6 place-content-start overflow-hidden">
+          <div className="flex-1 p-4 md:p-8 grid grid-cols-2 gap-4 md:gap-6 place-content-start overflow-y-auto">
             {ready.map((order) => (
               <div 
                 key={order.id} 
-                className={`text-7xl font-black text-center py-6 rounded-2xl transition-all duration-500 ${
+                className={`text-5xl md:text-7xl font-black text-center py-4 md:py-6 rounded-2xl transition-all duration-500 ${
                   newlyReadyTokens.has(order.id) ? 'bg-emerald-500 text-black scale-110 shadow-[0_0_40px_rgba(16,185,129,0.8)]' : 'text-emerald-400'
                 }`}
               >
@@ -121,7 +121,7 @@ export function DisplayClient({ initialSettings }: { initialSettings: any }) {
               </div>
             ))}
             {ready.length === 0 && (
-              <div className="col-span-2 text-center text-emerald-900/50 text-3xl mt-12 font-bold">...</div>
+              <div className="col-span-2 text-center text-emerald-900/50 text-xl md:text-3xl mt-6 md:mt-12 font-bold">...</div>
             )}
           </div>
         </div>
