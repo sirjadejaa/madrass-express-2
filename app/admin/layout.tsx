@@ -145,7 +145,7 @@ export default function AdminLayout({
   const { data: session } = useSession();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-[100dvh] flex-col">
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4 gap-2">
           <div className="flex gap-2 items-center shrink-0">

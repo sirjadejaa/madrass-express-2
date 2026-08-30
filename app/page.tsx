@@ -4,7 +4,7 @@ import { UtensilsCrossed } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-stone-50 flex flex-col items-center justify-center relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none opacity-20">
         <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-amber-500 blur-[120px]"></div>
