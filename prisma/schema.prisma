@@ -1,0 +1,363 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Roles
+enum Role {
+  ADMIN
+  MANAGER
+  KITCHEN
+  COUNTER
+  CUSTOMER
+}
+
+// Order Status
+enum OrderStatus {
+  NEW
+  ACCEPTED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+// Payment Status
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  PAY_AT_COUNTER
+}
+
+// Order Types
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+}
+
+// Payment Methods
+enum PaymentMethod {
+  UPI
+  CASH
+}
+
+model Restaurant {
+  id          String   @id @default(cuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  categories  Category[]
+  products    Product[]
+  tables      Table[]
+  orders      Order[]
+  customers   Customer[]
+  settings    RestaurantSetting?
+  displaySetting DisplaySetting?
+  printers    PrinterSetting[]
+  coupons     Coupon[]
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String?
+  passwordHash String
+  role         Role       @default(CUSTOMER)
+  isActive     Boolean    @default(true)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  products     Product[]
+  isActive     Boolean    @default(true)
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  name            String
+  description     String?
+  price           Decimal        @db.Decimal(10, 2)
+  isAvailable     Boolean        @default(true)
+  isVegetarian    Boolean        @default(false)
+  isPopular       Boolean        @default(false)
+  isRecommended   Boolean        @default(false)
+  isCombo         Boolean        @default(false)
+  preparationTime Int?           // in minutes
+  
+  categoryId      String
+  category        Category       @relation(fields: [categoryId], references: [id])
+  restaurantId    String
+  restaurant      Restaurant     @relation(fields: [restaurantId], references: [id])
+  
+  image           ProductImage?
+  model3D         Product3DModel?
+  optionGroups    ProductOptionGroup[]
+  orderItems      OrderItem[]
+  
+  productComboItems ProductComboItem[] @relation("ComboItems")
+  partOfCombos      ProductComboItem[] @relation("ComboProduct")
+  
+  recommendations   ProductRecommendation[] @relation("ProductToRecommendations")
+  recommendedIn     ProductRecommendation[] @relation("RecommendedProduct")
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Product3DModel {
+  id                String   @id @default(cuid())
+  url               String
+  thumbnail         String?
+  enabled           Boolean  @default(true)
+  rotationSpeed     Float    @default(1.0)
+  autoRotate        Boolean  @default(true)
+  
+  productId         String   @unique
+  product           Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductOptionGroup {
+  id            String   @id @default(cuid())
+  name          String   // e.g., "Size", "Extras"
+  isRequired    Boolean  @default(false)
+  minSelections Int      @default(0)
+  maxSelections Int?     // If 1, renders as Radio buttons
+  
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  options       ProductOption[]
+  
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProductOption {
+  id               String             @id @default(cuid())
+  optionGroupId    String
+  group            ProductOptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  
+  name             String   // e.g., "Regular", "Extra Butter"
+  price            Decimal  @db.Decimal(10, 2)
+  isAvailable      Boolean  @default(true)
+  maxQuantity      Int      @default(1) // E.g., max 2 Extra Butters
+  
+  order            Int      @default(0)
+  
+  orderItemOptions OrderItemOption[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model ProductComboItem {
+  id        String  @id @default(cuid())
+  comboId   String
+  combo     Product @relation("ComboItems", fields: [comboId], references: [id], onDelete: Cascade)
+  
+  productId String
+  product   Product @relation("ComboProduct", fields: [productId], references: [id], onDelete: Cascade)
+  
+  quantity  Int     @default(1)
+  
+  @@unique([comboId, productId])
+}
+
+model ProductRecommendation {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation("ProductToRecommendations", fields: [productId], references: [id], onDelete: Cascade)
+  
+  recommendedId String
+  recommended   Product  @relation("RecommendedProduct", fields: [recommendedId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId, recommendedId])
+}
+
+model Table {
+  id           String     @id @default(cuid())
+  number       String
+  qrCodeUrl    String?
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  orders       Order[]
+}
+
+model Customer {
+  id           String     @id @default(cuid())
+  phone        String?    @unique
+  name         String?
+  email        String?
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  orders       Order[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Order {
+  id           String      @id @default(cuid()) // Unique internal ID
+  type         OrderType
+  status       OrderStatus @default(NEW)
+  totalAmount  Decimal     @db.Decimal(10, 2)
+  
+  restaurantId String
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  
+  customerId   String?
+  customer     Customer?   @relation(fields: [customerId], references: [id])
+  
+  tableId      String?
+  table        Table?      @relation(fields: [tableId], references: [id])
+  
+  tokenId      String?     @unique
+  token        Token?      @relation(fields: [tokenId], references: [id])
+  
+  payment      Payment?
+  items        OrderItem[]
+  
+  couponCode     String?
+  discountAmount Decimal?  @db.Decimal(10, 2)
+  
+  idempotencyKey String?     @unique
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Token {
+  id            String   @id @default(cuid())
+  tokenNumber   Int      // Customer-facing daily number
+  date          DateTime @default(now()) @db.Date
+  order         Order?
+  
+  @@unique([tokenNumber, date])
+}
+
+model OrderItem {
+  id        String           @id @default(cuid())
+  quantity  Int
+  price     Decimal          @db.Decimal(10, 2) // Price at time of order
+  notes     String?
+  
+  orderId   String
+  order     Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId String
+  product   Product          @relation(fields: [productId], references: [id])
+  
+  options   OrderItemOption[]
+}
+
+model OrderItemOption {
+  id          String        @id @default(cuid())
+  orderItemId String
+  orderItem   OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  
+  optionId    String
+  option      ProductOption @relation(fields: [optionId], references: [id])
+  
+  quantity    Int           @default(1)
+  price       Decimal       @db.Decimal(10, 2) // Price at time of order
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  
+  orderId       String        @unique
+  order         Order         @relation(fields: [orderId], references: [id])
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Coupon {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  discountAmount   Decimal?  @db.Decimal(10, 2)
+  discountPercent  Float?
+  minOrderValue    Decimal?  @db.Decimal(10, 2)
+  maxDiscount      Decimal?  @db.Decimal(10, 2)
+  startDate        DateTime?
+  endDate          DateTime?
+  usageLimit       Int?
+  usageCount       Int       @default(0)
+  isActive         Boolean   @default(true)
+  
+  restaurantId     String
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model RestaurantSetting {
+  id                    String     @id @default(cuid())
+  restaurantId          String     @unique
+  restaurant            Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  dailyTokenStartNumber Int        @default(1)
+  currency              String     @default("INR")
+  taxPercent            Float      @default(5.0)
+}
+
+model DisplaySetting {
+  id                    String     @id @default(cuid())
+  restaurantId          String     @unique
+  restaurant            Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  enableVoice           Boolean    @default(true)
+  voiceVolume           Float      @default(1.0)
+  tokensCount           Int        @default(6)
+  brandLogoUrl          String?
+}
+
+model PrinterSetting {
+  id              String     @id @default(cuid())
+  restaurantId    String
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name            String
+  ipAddress       String?
+  type            String     // e.g., "RECEIPT", "KDS"
+  paperWidth      Int        @default(80) // 80mm or 58mm
+  autoPrint       Boolean    @default(true)
+  receiptFooter   String?    @db.Text
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String
+  userId    String?
+  details   Json?
+  createdAt DateTime @default(now())
+}
