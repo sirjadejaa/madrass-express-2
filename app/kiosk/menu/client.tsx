@@ -8,9 +8,10 @@ import { KioskProduct } from "./types";
 import { OrderFlowModal } from "../components/order-flow-modal";
 import { ProductGrid } from "../components/product-grid";
 import { ProductDetailModal } from "../components/product-detail-modal";
-import { CartSidebar } from "../components/cart-sidebar";
+import { CartSidebarDesktop, CartSidebarContent } from "../components/cart-sidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
 interface KioskClientProps {
   categories: KioskCategory[];
@@ -24,9 +25,11 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
   const router = useRouter();
   const resetKiosk = useKioskStore(state => state.resetKiosk);
   const setTaxPercent = useKioskStore(state => state.setTaxPercent);
+  const cart = useKioskStore(state => state.cart);
   
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<KioskProduct | null>(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     setTaxPercent(taxPercent);
@@ -57,8 +60,10 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
     };
   }, [resetKiosk, router]);
 
+  const cartItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
-    <div className="flex flex-col lg:flex-row h-full w-full overflow-hidden bg-muted/20 relative">
+    <div className="flex flex-col lg:flex-row h-full w-full bg-muted/20 relative">
       <OrderFlowModal tables={tables} />
       
       {/* Back Button */}
@@ -74,7 +79,8 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
         <ArrowLeft className="w-6 h-6" />
       </Button>
 
-      <div className="pt-20 lg:pt-4 flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+      {/* Main Content Area */}
+      <div className="pt-20 lg:pt-4 flex-1 flex flex-col lg:flex-row h-full overflow-hidden pb-24 lg:pb-0">
         <CategorySidebar 
           categories={categories}
           activeCategoryId={activeCategoryId}
@@ -93,7 +99,29 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
         </div>
       </div>
 
-      <CartSidebar />
+      {/* Desktop Persistent Cart Sidebar */}
+      <CartSidebarDesktop />
+
+      {/* Mobile Sticky Cart Trigger & Sheet */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t shadow-[0_-10px_30px_rgba(0,0,0,0.1)] z-40">
+        <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+          <SheetTrigger 
+            render={
+              <Button size="lg" className="w-full h-14 text-lg rounded-2xl flex justify-between px-6 shadow-lg">
+                <span className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5"/> 
+                  {cartItemsCount} {cartItemsCount === 1 ? 'item' : 'items'}
+                </span>
+                <span className="font-bold">View Cart</span>
+              </Button>
+            }
+          />
+          <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col rounded-t-[2rem]">
+            <SheetTitle className="sr-only">Your Cart</SheetTitle>
+            <CartSidebarContent />
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <ProductDetailModal 
         product={selectedProduct}

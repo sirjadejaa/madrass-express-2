@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function CartSidebar() {
+export function CartSidebarContent() {
   const router = useRouter();
   const { cart, orderType, tableName, updateQuantity, removeFromCart, clearCart, taxPercent } = useKioskStore();
 
@@ -25,7 +25,7 @@ export function CartSidebar() {
 
   if (cart.length === 0) {
     return (
-      <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l bg-card flex flex-col lg:h-full">
+      <div className="w-full h-full bg-card flex flex-col">
         <div className="p-6 bg-muted/50 border-b">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <ShoppingBag className="w-6 h-6" /> Your Order
@@ -46,13 +46,13 @@ export function CartSidebar() {
   }
 
   return (
-    <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l bg-card flex flex-col lg:h-full shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] lg:shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] z-20 shrink-0">
-      <div className="p-6 bg-muted/50 border-b flex justify-between items-start">
+    <div className="w-full h-full bg-card flex flex-col z-20 shrink-0">
+      <div className="p-4 sm:p-6 bg-muted/50 border-b flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <ShoppingBag className="w-6 h-6" /> Your Order
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" /> Your Order
           </h2>
-          <p className="text-sm text-muted-foreground mt-1 font-medium">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-medium">
             {orderType === "DINE_IN" ? `Dine In • Table ${tableName}` : "Takeaway"}
           </p>
         </div>
@@ -125,8 +125,8 @@ export function CartSidebar() {
         </div>
       </ScrollArea>
 
-      <div className="p-6 bg-background border-t shadow-[0_-10px_20px_-15px_rgba(0,0,0,0.1)]">
-        <div className="space-y-2 mb-6">
+      <div className="p-4 sm:p-6 bg-background border-t shadow-[0_-10px_20px_-15px_rgba(0,0,0,0.1)] shrink-0">
+        <div className="space-y-2 mb-4 sm:mb-6 text-sm sm:text-base">
           <div className="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
             <span>₹{subtotal.toFixed(2)}</span>
@@ -135,15 +135,23 @@ export function CartSidebar() {
             <span>Taxes ({taxPercent}%)</span>
             <span>₹{tax.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-2xl font-black pt-2 border-t">
+          <div className="flex justify-between text-xl sm:text-2xl font-black pt-2 border-t">
             <span>Total</span>
             <span className="text-primary">₹{total.toFixed(2)}</span>
           </div>
         </div>
-        <Button size="lg" className="w-full h-16 text-2xl rounded-2xl shadow-lg hover:scale-[1.02] transition-transform" onClick={handleCheckout} disabled={cart.some(item => item.isAvailable === false)}>
+        <Button size="lg" className="w-full h-14 sm:h-16 text-xl sm:text-2xl rounded-2xl shadow-lg hover:scale-[1.02] transition-transform" onClick={handleCheckout} disabled={cart.some(item => item.isAvailable === false)}>
           Checkout
         </Button>
       </div>
+    </div>
+  );
+}
+
+export function CartSidebarDesktop() {
+  return (
+    <div className="hidden lg:flex w-96 border-l bg-card flex-col h-full shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] shrink-0">
+      <CartSidebarContent />
     </div>
   );
 }
