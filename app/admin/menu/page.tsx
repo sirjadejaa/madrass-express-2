@@ -5,6 +5,8 @@ import { getCategories } from "../categories/actions";
 import { MenuClient } from "./client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function MenuPage() {
   const session = await getServerSession(authOptions);
   

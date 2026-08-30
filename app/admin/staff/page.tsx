@@ -4,6 +4,8 @@ import { getStaff } from "./actions";
 import { StaffClient } from "./client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function StaffPage() {
   const session = await getServerSession(authOptions);
   

@@ -4,6 +4,8 @@ import { getCategories } from "./actions";
 import { CategoriesClient } from "./client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoriesPage() {
   const session = await getServerSession(authOptions);
   
