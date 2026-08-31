@@ -120,13 +120,13 @@ function ToastClose({
       aria-label="Close toast"
       render={render}
       className={cn(
-        "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-foreground",
+        "relative shrink-0 text-muted-foreground after:absolute after:-inset-3 after:content-[''] hover:text-foreground md:after:-inset-2 h-8 w-8 flex items-center justify-center rounded-md",
         className
       )}
       {...props}
     >
       {children ?? (
-        <XIcon aria-hidden="true" />
+        <XIcon aria-hidden="true" className="h-5 w-5" />
       )}
     </ToastPrimitive.Close>
   )

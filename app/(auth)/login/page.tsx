@@ -16,9 +16,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, UtensilsCrossed } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -52,22 +51,21 @@ export default function LoginPage() {
       if (result?.error) {
         toast({
           variant: "destructive",
-          title: "Login Failed",
-          description: result.error,
+          title: "Authentication Failed",
+          description: "Invalid email or password.",
         });
       } else {
         toast({
-          title: "Login Successful",
-          description: "Welcome back!",
+          title: "Welcome back",
+          description: "Successfully signed in to the dashboard.",
         });
-        // We handle redirects using NextAuth configuration or manually here
         router.push("/admin");
         router.refresh();
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "System Error",
         description: "An unexpected error occurred. Please try again.",
       });
     } finally {
@@ -76,53 +74,108 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Madrass Express
-          </CardTitle>
-          <CardDescription>
-            Enter your credentials to access the dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="flex h-screen w-full bg-white dark:bg-zinc-950">
+      {/* Left Panel - Subtle South Indian Aesthetic / Branding */}
+      <div className="hidden lg:flex w-1/2 bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex-col justify-between p-12 relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-amber-900/10 via-transparent to-transparent opacity-50 dark:opacity-20" />
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E\")", backgroundSize: "30px 30px" }} />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+              <UtensilsCrossed className="text-white h-6 w-6" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">Madrass Express</h1>
+          </div>
+        </div>
+        
+        <div className="relative z-10 max-w-md">
+          <h2 className="text-4xl font-semibold tracking-tight leading-tight mb-4 text-zinc-900 dark:text-zinc-100">
+            Premium Restaurant <br/>Management System
+          </h2>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400">
+            Streamline your orders, kitchen operations, and customer experience with our integrated platform.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
+        <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          
+          <div className="space-y-2 text-center lg:text-left">
+            <div className="flex justify-center lg:hidden mb-6">
+              <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+                <UtensilsCrossed className="text-white h-8 w-8" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+            <p className="text-zinc-500 dark:text-zinc-400">
+              Enter your credentials to access your dashboard.
+            </p>
+          </div>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="admin@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-zinc-700 dark:text-zinc-300 font-medium">Email address</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="admin@example.com" 
+                          className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 transition-colors focus:bg-white dark:focus:bg-zinc-900" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-zinc-700 dark:text-zinc-300 font-medium">Password</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 transition-colors focus:bg-white dark:focus:bg-zinc-900"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Button type="submit" className="w-full h-12 text-base font-semibold shadow-md active:scale-[0.98] transition-transform" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Authenticating...
+                  </>
+                ) : (
+                  "Sign In"
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign In
               </Button>
             </form>
           </Form>
-        </CardContent>
-      </Card>
+
+          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+            Secure, encrypted authentication.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

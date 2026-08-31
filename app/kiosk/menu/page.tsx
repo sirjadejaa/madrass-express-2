@@ -3,7 +3,7 @@ import { KioskClient } from "./client";
 import { KioskCategory } from "../components/category-sidebar";
 import { KioskProduct } from "./types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function KioskMenuPage() {
   const restaurant = await db.restaurant.findFirst({

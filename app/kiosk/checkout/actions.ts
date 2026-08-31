@@ -84,6 +84,7 @@ export async function processCheckoutAction(payload: CheckoutPayload) {
         productId: dbProduct.id,
         quantity: item.quantity,
         price: itemBasePrice,
+        notes: item.notes || null,
         options: {
           create: optionsData
         }

@@ -74,7 +74,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
         toast({ title: "Invalid Coupon", description: data.error, variant: "destructive" });
         removeCoupon();
       }
-    } catch (e) {
+    } catch (error) {
       toast({ title: "Error", description: "Failed to apply coupon", variant: "destructive" });
     } finally {
       setIsApplyingCoupon(false);
@@ -124,7 +124,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
         // Route to payment screen, do NOT clear cart yet (clearing happens on success)
         router.push(`/kiosk/payment/${result.orderId}`); 
       }
-    } catch (e) {
+    } catch (error) {
       toast({ title: "Error", description: "An unexpected error occurred.", variant: "destructive" });
       setIsSubmitting(false);
     }

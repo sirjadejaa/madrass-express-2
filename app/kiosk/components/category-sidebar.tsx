@@ -16,23 +16,31 @@ interface CategorySidebarProps {
 
 export function CategorySidebar({ categories, activeCategoryId, onSelectCategory }: CategorySidebarProps) {
   return (
-    <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r bg-card flex lg:flex-col shrink-0 overflow-x-auto lg:overflow-y-auto no-scrollbar">
-      <div className="p-4 flex lg:flex-col gap-2 lg:gap-2">
+    <div className="w-full lg:w-[240px] border-b lg:border-b-0 lg:border-r bg-white dark:bg-zinc-950 flex lg:flex-col shrink-0 overflow-x-auto lg:overflow-y-auto no-scrollbar scroll-smooth">
+      <div className="p-4 lg:p-6 flex lg:flex-col gap-3 lg:gap-4 min-w-max lg:min-w-0">
         <Button
-          variant={activeCategoryId === null ? "default" : "ghost"}
-          className={`shrink-0 lg:w-full justify-start text-lg h-12 lg:h-16 rounded-2xl ${activeCategoryId === null ? "shadow-md" : ""}`}
+          variant={activeCategoryId === null ? "default" : "secondary"}
+          className={`shrink-0 lg:w-full justify-center lg:justify-start text-base lg:text-lg h-12 lg:h-16 rounded-full lg:rounded-2xl transition-all duration-300 ${
+            activeCategoryId === null 
+              ? "bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(234,88,12,0.25)] hover:bg-primary/90" 
+              : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800"
+          } px-6 lg:px-6`}
           onClick={() => onSelectCategory(null)}
         >
-          All Items
+          <span className="font-semibold tracking-wide">All Items</span>
         </Button>
         {categories.map((category) => (
           <Button
             key={category.id}
-            variant={activeCategoryId === category.id ? "default" : "ghost"}
-            className={`shrink-0 lg:w-full justify-start text-lg h-12 lg:h-16 rounded-2xl ${activeCategoryId === category.id ? "shadow-md" : ""}`}
+            variant={activeCategoryId === category.id ? "default" : "secondary"}
+            className={`shrink-0 lg:w-full justify-center lg:justify-start text-base lg:text-lg h-12 lg:h-16 rounded-full lg:rounded-2xl transition-all duration-300 ${
+              activeCategoryId === category.id 
+                ? "bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(234,88,12,0.25)] hover:bg-primary/90" 
+                : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800"
+            } px-6 lg:px-6`}
             onClick={() => onSelectCategory(category.id)}
           >
-            {category.name}
+            <span className="font-semibold tracking-wide">{category.name}</span>
           </Button>
         ))}
       </div>

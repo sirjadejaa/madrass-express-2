@@ -50,7 +50,7 @@ export async function mockWebhookAction(orderId: string) {
     });
 
     return { success: true };
-  } catch (e) {
+  } catch (error) {
     return { error: "Failed" };
   }
 }

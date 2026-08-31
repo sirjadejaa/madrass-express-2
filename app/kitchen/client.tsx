@@ -17,12 +17,16 @@ export function KDSClient() {
   const [filter, setFilter] = useState("ALL");
   const knownOrderIds = useRef<Set<string>>(new Set());
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/kds/orders");
+      if (!res.ok) throw new Error("Network response was not ok");
       const data = await res.json();
+      
       if (data.success) {
+        setError(null); // Clear previous errors
         setOrders(data.orders);
         
         // Check for new orders
@@ -53,6 +57,7 @@ export function KDSClient() {
       }
     } catch (e) {
       console.error(e);
+      setError("Connection lost. Retrying...");
     }
   };
 
@@ -91,30 +96,40 @@ export function KDSClient() {
   const readyOrders = filteredOrders.filter(o => o.status === OrderStatus.READY);
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div className="flex justify-between items-center mb-4 gap-4 flex-wrap">
-        <div className="flex gap-2">
+    <div className="h-full w-full flex flex-col bg-zinc-950 text-zinc-100 p-2 md:p-6">
+      <div className="flex justify-between items-center mb-6 gap-4 flex-wrap bg-zinc-900/80 backdrop-blur p-4 rounded-2xl border border-zinc-800 shadow-sm">
+        <div className="flex gap-2 flex-wrap">
           {["ALL", "DINE_IN", "TAKEAWAY", "PENDING", "DELAYED"].map(f => (
             <Button 
               key={f} 
               variant={filter === f ? "default" : "outline"} 
               size="sm"
               onClick={() => setFilter(f)}
-              className={filter !== f ? "text-slate-400 border-slate-700 bg-slate-900" : ""}
+              className={filter === f 
+                ? "bg-zinc-100 text-zinc-900 hover:bg-white" 
+                : "text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800 hover:text-zinc-300"}
             >
               {f.replace('_', ' ')}
             </Button>
           ))}
         </div>
-        {!soundEnabled && (
-          <Button variant="destructive" size="sm" onClick={() => setSoundEnabled(true)} className="animate-pulse">
-            Enable Order Sound
-          </Button>
-        )}
+        <div className="flex items-center gap-4">
+          {error && (
+            <div className="flex items-center gap-2 text-xs font-medium bg-red-950/50 text-red-400 px-3 py-1.5 rounded-full border border-red-900/50">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              {error}
+            </div>
+          )}
+          {!soundEnabled && (
+            <Button variant="outline" size="sm" onClick={() => setSoundEnabled(true)} className="animate-pulse border-amber-500/50 text-amber-500 hover:bg-amber-500/10">
+              Enable Order Sound
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-full overflow-y-auto md:overflow-hidden pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-auto md:h-full overflow-y-auto md:overflow-hidden pb-4">
         
         {/* NEW COLUMN */}
         <KDSColumn 
@@ -122,8 +137,9 @@ export function KDSClient() {
           orders={newOrders} 
           actionLabel="ACCEPT" 
           onAction={(id: string) => handleAction(id, acceptOrder)}
-          color="border-sky-500/50"
-          headerColor="bg-sky-500/20 text-sky-300"
+          color="border-zinc-800"
+          headerColor="bg-zinc-900 text-zinc-300"
+          buttonVariant="default"
         />
 
         {/* PREPARING COLUMN */}
@@ -132,8 +148,9 @@ export function KDSClient() {
           orders={prepOrders} 
           actionLabel="READY" 
           onAction={(id: string) => handleAction(id, markOrderReady)}
-          color="border-amber-500/50"
-          headerColor="bg-amber-500/20 text-amber-300"
+          color="border-amber-900/30"
+          headerColor="bg-amber-950/30 text-amber-400 border-b border-amber-900/50"
+          buttonVariant="secondary"
         />
 
         {/* READY COLUMN */}
@@ -142,8 +159,9 @@ export function KDSClient() {
           orders={readyOrders} 
           actionLabel="COMPLETED" 
           onAction={(id: string) => handleAction(id, completeOrder)}
-          color="border-emerald-500/50"
-          headerColor="bg-emerald-500/20 text-emerald-300"
+          color="border-emerald-900/30"
+          headerColor="bg-emerald-950/30 text-emerald-400 border-b border-emerald-900/50"
+          buttonVariant="outline"
         />
 
       </div>
@@ -151,25 +169,27 @@ export function KDSClient() {
   );
 }
 
-function KDSColumn({ title, orders, actionLabel, onAction, color, headerColor }: any) {
+function KDSColumn({ title, orders, actionLabel, onAction, color, headerColor, buttonVariant }: any) {
   return (
-    <div className={`flex flex-col border-2 rounded-xl overflow-hidden bg-slate-900/50 ${color} h-[400px] md:h-auto min-h-0`}>
-      <div className={`p-4 font-bold tracking-widest text-center shadow-md ${headerColor}`}>
-        {title} ({orders.length})
+    <div className={`flex flex-col border rounded-2xl overflow-hidden bg-zinc-900/40 ${color} h-[500px] md:h-auto min-h-0 backdrop-blur-sm`}>
+      <div className={`p-4 font-bold tracking-widest text-center shadow-sm ${headerColor}`}>
+        {title} <span className="opacity-60 font-normal ml-2">({orders.length})</span>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {orders.map((order: any) => (
-          <OrderCard key={order.id} order={order} actionLabel={actionLabel} onAction={() => onAction(order.id)} />
+          <OrderCard key={order.id} order={order} actionLabel={actionLabel} onAction={() => onAction(order.id)} buttonVariant={buttonVariant} />
         ))}
         {orders.length === 0 && (
-          <div className="text-center text-slate-600 mt-10 font-bold uppercase">No orders</div>
+          <div className="flex items-center justify-center h-40">
+            <div className="text-center text-zinc-600 font-medium uppercase tracking-widest text-sm">No orders</div>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-function OrderCard({ order, actionLabel, onAction }: any) {
+function OrderCard({ order, actionLabel, onAction, buttonVariant }: any) {
   const [elapsedStr, setElapsedStr] = useState("");
   const [isDelayed, setIsDelayed] = useState(false);
 
@@ -190,41 +210,62 @@ function OrderCard({ order, actionLabel, onAction }: any) {
   const isTakeaway = order.type === "TAKEAWAY";
 
   return (
-    <div className={`p-4 rounded-xl border-2 transition-all ${isDelayed ? 'border-red-500 bg-red-500/10' : 'border-slate-800 bg-slate-800'} shadow-lg`}>
-      <div className="flex justify-between items-start mb-4 border-b border-slate-700 pb-3">
+    <div className={`p-5 rounded-xl border transition-all ${isDelayed ? 'border-red-900/50 bg-red-950/20' : 'border-zinc-800 bg-zinc-900'} shadow-md`}>
+      <div className="flex justify-between items-start mb-5 border-b border-zinc-800 pb-4">
         <div>
-          <div className="text-3xl font-black">#{order.token.tokenNumber}</div>
-          <div className={`text-xs font-bold uppercase mt-1 px-2 py-0.5 rounded-full inline-block ${isTakeaway ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>
+          <div className="text-4xl font-black text-white tracking-tighter">#{order.token.tokenNumber}</div>
+          <div className={`text-[11px] font-bold uppercase mt-2 px-2.5 py-1 rounded-md inline-block tracking-wider ${isTakeaway ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-zinc-800 text-zinc-300 border border-zinc-700'}`}>
             {isTakeaway ? 'Takeaway' : `Dine In - Table ${order.table?.number}`}
           </div>
         </div>
-        <div className="text-right">
-          <div className={`text-lg font-mono font-bold ${isDelayed ? 'text-red-400' : 'text-slate-300'}`}>{elapsedStr}</div>
+        <div className="text-right flex flex-col items-end">
+          <div className={`text-lg font-mono font-medium ${isDelayed ? 'text-red-400' : 'text-zinc-400'}`}>{elapsedStr}</div>
           {order.payment?.status === "PAY_AT_COUNTER" && (
-            <div className="text-[10px] font-bold text-red-400 uppercase mt-1 bg-red-900/40 px-2 py-0.5 rounded">
-              PAY DUE
+            <div className="text-[10px] font-bold text-red-400 uppercase mt-2 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded">
+              Payment Due
             </div>
           )}
         </div>
       </div>
 
-      <div className="space-y-3 mb-5">
+      <div className="space-y-4 mb-6">
         {order.items.map((item: any) => (
-          <div key={item.id} className="text-sm">
-            <div className="flex font-bold">
-              <span className="text-slate-400 w-8">{item.quantity}x</span>
-              <span className="text-slate-100">{item.product.name}</span>
+          <div key={item.id} className="text-base">
+            <div className="flex font-semibold">
+              <span className="text-zinc-500 w-8 font-mono">{item.quantity}x</span>
+              <span className="text-zinc-100">{item.product.name}</span>
             </div>
-            {item.options.map((opt: any) => (
-              <div key={opt.id} className="text-slate-400 pl-8 text-xs">
-                + {opt.option.name} {opt.quantity > 1 ? `(x${opt.quantity})` : ''}
+            {item.options.length > 0 && (
+              <div className="mt-1.5 space-y-1">
+                {item.options.map((opt: any) => (
+                  <div key={opt.id} className="text-zinc-400 pl-8 text-sm flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-zinc-700 shrink-0"></span>
+                    {opt.option.name} {opt.quantity > 1 ? <span className="text-zinc-500 font-mono">(x{opt.quantity})</span> : ''}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+            {item.notes && (
+              <div className="mt-2.5 pl-8">
+                <div className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                  Special Instructions
+                </div>
+                <div className="text-sm font-medium text-amber-50 bg-amber-500/10 border border-amber-500/20 rounded-md p-2.5 break-words">
+                  {item.notes}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      <Button className="w-full font-bold h-12 text-lg" size="lg" onClick={onAction}>
+      <Button 
+        className="w-full font-bold h-14 text-lg shadow-sm" 
+        variant={buttonVariant || "default"} 
+        size="lg" 
+        onClick={onAction}
+      >
         {actionLabel}
       </Button>
     </div>
