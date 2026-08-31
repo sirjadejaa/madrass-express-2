@@ -129,7 +129,9 @@ function KDSColumn({ title, orders, actionLabel, onAction, color, headerColor, b
         ))}
         {orders.length === 0 && (
           <div className="flex items-center justify-center h-40">
-            <div className="text-center text-zinc-600 font-medium uppercase tracking-widest text-sm">No orders</div>
+            <div className="text-center text-zinc-600 font-medium uppercase tracking-widest text-sm">
+              No orders
+            </div>
           </div>
         )}
       </div>
@@ -145,6 +147,7 @@ export function KDSClient() {
   const [soundEnabled, setSoundEnabled] = useState(false);
   
   const [isFetching, setIsFetching] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   const fetchOrders = async () => {
@@ -191,6 +194,7 @@ export function KDSClient() {
       setError(e.message || "Connection lost.");
     } finally {
       setIsFetching(false);
+      setIsInitialLoad(false);
     }
   };
 
@@ -275,33 +279,43 @@ export function KDSClient() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-auto md:h-full overflow-y-auto md:overflow-hidden pb-4">
-        <KDSColumn 
-          title="NEW ORDERS" 
-          orders={newOrders} 
-          actionLabel="ACCEPT" 
-          onAction={(id: string) => handleAction(id, acceptOrder)}
-          color="border-zinc-800"
-          headerColor="bg-zinc-900 text-zinc-300"
-          buttonVariant="default"
-        />
-        <KDSColumn 
-          title="PREPARING" 
-          orders={prepOrders} 
-          actionLabel="READY" 
-          onAction={(id: string) => handleAction(id, markOrderReady)}
-          color="border-amber-900/30"
-          headerColor="bg-amber-950/30 text-amber-400 border-b border-amber-900/50"
-          buttonVariant="secondary"
-        />
-        <KDSColumn 
-          title="READY" 
-          orders={readyOrders} 
-          actionLabel="COMPLETED" 
-          onAction={(id: string) => handleAction(id, completeOrder)}
-          color="border-emerald-900/30"
-          headerColor="bg-emerald-950/30 text-emerald-400 border-b border-emerald-900/50"
-          buttonVariant="outline"
-        />
+        {isInitialLoad ? (
+          <>
+            <KDSColumn title="NEW ORDERS" orders={[]} color="border-zinc-800" headerColor="bg-zinc-900 text-zinc-300" />
+            <KDSColumn title="PREPARING" orders={[]} color="border-amber-900/30" headerColor="bg-amber-950/30 text-amber-400 border-b border-amber-900/50" />
+            <KDSColumn title="READY" orders={[]} color="border-emerald-900/30" headerColor="bg-emerald-950/30 text-emerald-400 border-b border-emerald-900/50" />
+          </>
+        ) : (
+          <>
+            <KDSColumn 
+              title="NEW ORDERS" 
+              orders={newOrders} 
+              actionLabel="ACCEPT" 
+              onAction={(id: string) => handleAction(id, acceptOrder)}
+              color="border-zinc-800"
+              headerColor="bg-zinc-900 text-zinc-300"
+              buttonVariant="default"
+            />
+            <KDSColumn 
+              title="PREPARING" 
+              orders={prepOrders} 
+              actionLabel="READY" 
+              onAction={(id: string) => handleAction(id, markOrderReady)}
+              color="border-amber-900/30"
+              headerColor="bg-amber-950/30 text-amber-400 border-b border-amber-900/50"
+              buttonVariant="secondary"
+            />
+            <KDSColumn 
+              title="READY" 
+              orders={readyOrders} 
+              actionLabel="COMPLETED" 
+              onAction={(id: string) => handleAction(id, completeOrder)}
+              color="border-emerald-900/30"
+              headerColor="bg-emerald-950/30 text-emerald-400 border-b border-emerald-900/50"
+              buttonVariant="outline"
+            />
+          </>
+        )}
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ export default function AdminLoading() {
         ))}
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 hidden">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-1 md:col-span-2 lg:col-span-4 rounded-2xl shadow-sm border-slate-200/60">
           <CardHeader>
             <Skeleton className="h-6 w-32" />
