@@ -37,7 +37,7 @@ export function PaymentClient({ orderId, amount }: PaymentClientProps) {
         
         if (data.status === PaymentStatus.PAID) {
           clearCart();
-          router.push(`/kiosk/success/${orderId}`);
+          router.replace(`/kiosk/success/${orderId}`);
         } else if (data.status === PaymentStatus.FAILED) {
           setQrError("Payment failed. Please try again or pay at the counter.");
           setScreenState("SELECT");
@@ -56,7 +56,7 @@ export function PaymentClient({ orderId, amount }: PaymentClientProps) {
     const result = await updatePaymentToCounterAction(orderId);
     if (result.success) {
       clearCart();
-      router.push(`/kiosk/success/${orderId}`);
+      router.replace(`/kiosk/success/${orderId}`);
     } else {
       toast({ title: "Error", description: result.error || "Failed to update payment.", variant: "destructive" });
       setScreenState("SELECT");

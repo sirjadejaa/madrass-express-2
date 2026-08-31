@@ -34,7 +34,7 @@ export function SuccessClient({ orderId, tokenNumber, paymentStatus, orderType, 
     // Auto redirect back to welcome screen after 15 seconds
     const timer = setTimeout(() => {
       resetKiosk();
-      router.push("/kiosk");
+      router.replace("/kiosk");
     }, 15000);
 
     return () => clearTimeout(timer);
@@ -42,7 +42,7 @@ export function SuccessClient({ orderId, tokenNumber, paymentStatus, orderType, 
 
   const handleFinish = () => {
     resetKiosk();
-    router.push("/kiosk");
+    router.replace("/kiosk");
   };
 
   const handleManualPrint = () => {

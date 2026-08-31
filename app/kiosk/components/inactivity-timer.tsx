@@ -19,7 +19,7 @@ export function InactivityTimer({ timeoutMs = 120000 }: { timeoutMs?: number }) 
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         resetKiosk();
-        router.push("/kiosk");
+        router.replace("/kiosk");
       }, timeoutMs);
     };
 

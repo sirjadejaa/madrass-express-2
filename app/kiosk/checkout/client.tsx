@@ -38,7 +38,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
   useEffect(() => {
     setTaxPercent(taxPercent);
     if (cart.length === 0) {
-      router.push("/kiosk/menu");
+      router.replace("/kiosk/menu");
     }
   }, [cart, router, taxPercent, setTaxPercent]);
 
@@ -134,7 +134,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
       
       {/* Left Column: Form */}
       <div className="flex-none lg:flex-1 flex flex-col bg-background rounded-3xl p-6 lg:p-8 shadow-sm lg:overflow-y-auto shrink-0">
-        <Button variant="ghost" className="self-start mb-6 text-muted-foreground" onClick={() => router.push("/kiosk/menu")}>
+        <Button variant="ghost" className="self-start mb-6 text-muted-foreground" onClick={() => router.back()}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Menu
         </Button>
         

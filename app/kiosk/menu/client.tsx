@@ -44,7 +44,7 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         resetKiosk();
-        router.push("/kiosk");
+        router.replace("/kiosk");
       }, 2 * 60 * 1000); 
     };
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
@@ -80,7 +80,7 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
             className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800"
             onClick={() => {
               resetKiosk();
-              router.push("/kiosk");
+              router.replace("/kiosk");
             }}
           >
             <ArrowLeft className="w-5 h-5" />
@@ -128,7 +128,7 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
           className="hidden lg:flex absolute top-6 left-6 z-50 rounded-full bg-white dark:bg-zinc-950 shadow-md w-12 h-12 border-zinc-200 dark:border-zinc-800 hover:scale-105 transition-transform"
           onClick={() => {
             resetKiosk();
-            router.push("/kiosk");
+            router.replace("/kiosk");
           }}
         >
           <ArrowLeft className="w-5 h-5" />
