@@ -18,35 +18,44 @@ export async function GET() {
 
     const tokensCount = restaurant.displaySetting?.tokensCount || 6;
 
-    // Fetch PREPARING orders (newest first, limit to tokensCount)
-    const preparingOrders = await db.order.findMany({
-      where: {
-        status: OrderStatus.PREPARING,
-        restaurantId: restaurant.id
-      },
-      include: {
-        token: true
-      },
-      orderBy: {
-        updatedAt: 'desc'
-      },
-      take: tokensCount
-    });
-
-    // Fetch READY orders (newest first, limit to tokensCount)
-    const readyOrders = await db.order.findMany({
-      where: {
-        status: OrderStatus.READY,
-        restaurantId: restaurant.id
-      },
-      include: {
-        token: true
-      },
-      orderBy: {
-        updatedAt: 'desc'
-      },
-      take: tokensCount
-    });
+    const [preparingOrders, readyOrders] = await Promise.all([
+      db.order.findMany({
+        where: {
+          status: OrderStatus.PREPARING,
+          restaurantId: restaurant.id
+        },
+        select: {
+          id: true,
+          token: {
+            select: {
+              tokenNumber: true
+            }
+          }
+        },
+        orderBy: {
+          updatedAt: 'desc'
+        },
+        take: tokensCount
+      }),
+      db.order.findMany({
+        where: {
+          status: OrderStatus.READY,
+          restaurantId: restaurant.id
+        },
+        select: {
+          id: true,
+          token: {
+            select: {
+              tokenNumber: true
+            }
+          }
+        },
+        orderBy: {
+          updatedAt: 'desc'
+        },
+        take: tokensCount
+      })
+    ]);
 
     return NextResponse.json({ 
       success: true, 

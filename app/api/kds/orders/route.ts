@@ -20,23 +20,52 @@ export async function GET(_req: NextRequest) {
         }
         // Ideally filter by restaurantId from session, but for MVP we assume 1 restaurant or fetch all.
       },
-      include: {
-        token: true,
-        table: true,
-        payment: true,
+      select: {
+        id: true,
+        type: true,
+        createdAt: true,
+        status: true,
+        token: {
+          select: {
+            tokenNumber: true
+          }
+        },
+        table: {
+          select: {
+            number: true
+          }
+        },
+        payment: {
+          select: {
+            status: true
+          }
+        },
         items: {
-          include: {
-            product: true,
+          select: {
+            id: true,
+            quantity: true,
+            notes: true,
+            product: {
+              select: {
+                name: true
+              }
+            },
             options: {
-              include: {
-                option: true
+              select: {
+                id: true,
+                quantity: true,
+                option: {
+                  select: {
+                    name: true
+                  }
+                }
               }
             }
           }
         }
       },
       orderBy: {
-        createdAt: 'asc' // Oldest first
+        createdAt: 'asc'
       }
     });
 

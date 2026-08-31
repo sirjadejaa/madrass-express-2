@@ -26,11 +26,6 @@ export default async function AdminDashboard({
 }: {
   searchParams: { days?: string }
 }) {
-  const restaurant = await db.restaurant.findFirst();
-  if (!restaurant) {
-    redirect("/admin/setup");
-  }
-
   const days = parseInt(searchParams.days || "1", 10);
   const isValidDays = [1, 7, 10, 15, 30].includes(days);
   const filterDays = isValidDays ? days : 1;
@@ -64,26 +59,33 @@ export default async function AdminDashboard({
     }
   }
 
-  // Fetch orders within the date range
-  const periodOrders = await db.order.findMany({
-    where: dateFilter,
-    select: { 
-      id: true,
-      status: true,
-      totalAmount: true,
-      createdAt: true,
-      payment: { select: { status: true } },
-      token: { select: { tokenNumber: true } },
-      items: {
-        select: {
-          quantity: true,
-          productId: true,
-          product: { select: { name: true } }
+  // Fetch restaurant and orders in parallel
+  const [restaurant, periodOrders] = await Promise.all([
+    db.restaurant.findFirst(),
+    db.order.findMany({
+      where: dateFilter,
+      select: { 
+        id: true,
+        status: true,
+        totalAmount: true,
+        createdAt: true,
+        payment: { select: { status: true } },
+        token: { select: { tokenNumber: true } },
+        items: {
+          select: {
+            quantity: true,
+            productId: true,
+            product: { select: { name: true } }
+          }
         }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+  ]);
+
+  if (!restaurant) {
+    redirect("/admin/setup");
+  }
 
   const totalOrdersCount = periodOrders.length;
   

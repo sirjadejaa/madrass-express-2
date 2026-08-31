@@ -22,48 +22,48 @@ export default async function KioskMenuPage() {
     );
   }
 
-  const tables = await db.table.findMany({
-    where: { restaurantId: restaurant.id },
-    orderBy: { number: 'asc' },
-    select: { id: true, number: true }
-  });
-
-  const categories = await db.category.findMany({
-    where: { restaurantId: restaurant.id, isActive: true },
-    orderBy: { order: 'asc' },
-  });
-
-  const products = await db.product.findMany({
-    where: { 
-      restaurantId: restaurant.id,
-      category: { isActive: true } 
-    },
-    include: {
-      category: true,
-      image: true,
-      model3D: true,
-      optionGroups: {
-        include: {
-          options: {
-            where: { isAvailable: true },
-            orderBy: { order: 'asc' }
-          }
-        },
-        orderBy: { order: 'asc' }
+  const [tables, categories, products] = await Promise.all([
+    db.table.findMany({
+      where: { restaurantId: restaurant.id },
+      orderBy: { number: 'asc' },
+      select: { id: true, number: true }
+    }),
+    db.category.findMany({
+      where: { restaurantId: restaurant.id, isActive: true },
+      orderBy: { order: 'asc' },
+    }),
+    db.product.findMany({
+      where: { 
+        restaurantId: restaurant.id,
+        category: { isActive: true } 
       },
-      recommendations: {
-        include: {
-          recommended: {
-            include: { image: true }
+      include: {
+        category: true,
+        image: true,
+        model3D: true,
+        optionGroups: {
+          include: {
+            options: {
+              where: { isAvailable: true },
+              orderBy: { order: 'asc' }
+            }
+          },
+          orderBy: { order: 'asc' }
+        },
+        recommendations: {
+          include: {
+            recommended: {
+              include: { image: true }
+            }
           }
         }
-      }
-    },
-    orderBy: [
-      { category: { order: 'asc' } },
-      { name: 'asc' }
-    ]
-  });
+      },
+      orderBy: [
+        { category: { order: 'asc' } },
+        { name: 'asc' }
+      ]
+    })
+  ]);
 
   const kioskProducts: KioskProduct[] = products.map(p => ({
     id: p.id,
