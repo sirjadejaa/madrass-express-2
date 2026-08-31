@@ -144,7 +144,6 @@ export function KDSClient() {
   const knownOrderIds = useRef<Set<string>>(new Set());
   const [soundEnabled, setSoundEnabled] = useState(false);
   
-  const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -191,7 +190,6 @@ export function KDSClient() {
       console.error(e);
       setError(e.message || "Connection lost.");
     } finally {
-      setIsLoading(false);
       setIsFetching(false);
     }
   };
@@ -212,22 +210,13 @@ export function KDSClient() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="h-full w-full flex flex-col items-center justify-center bg-zinc-950 text-zinc-100">
-        <Loader2 className="w-12 h-12 animate-spin text-zinc-500 mb-4" />
-        <h2 className="text-xl font-medium text-zinc-400">Loading Kitchen Display...</h2>
-      </div>
-    );
-  }
-
   if (error && orders.length === 0) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center bg-zinc-950 text-zinc-100">
         <AlertCircle className="w-16 h-16 text-red-500 mb-6" />
         <h2 className="text-3xl font-bold mb-4">Connection Error</h2>
         <p className="text-zinc-400 mb-8 max-w-md text-center">{error}</p>
-        <Button size="lg" onClick={() => { setIsLoading(true); fetchOrders(); }}>
+        <Button size="lg" onClick={() => { fetchOrders(); }}>
           Retry Connection
         </Button>
       </div>
