@@ -2,7 +2,6 @@
 
 import { useKioskStore } from "@/lib/store/kiosk-store";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -48,7 +47,7 @@ export function CartSidebarContent() {
   }
 
   return (
-    <div className="w-full h-full bg-zinc-50 dark:bg-zinc-950 flex flex-col z-20 shrink-0">
+    <div className="w-full h-full min-h-0 bg-zinc-50 dark:bg-zinc-950 flex flex-col z-20 shrink-0 overflow-hidden">
       <div className="p-5 sm:p-6 bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start shrink-0">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-3 text-zinc-900 dark:text-white tracking-tight">
@@ -63,7 +62,7 @@ export function CartSidebarContent() {
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 px-4 sm:px-5 py-4">
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-5 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="space-y-4 pr-3">
           {cart.map((item) => {
             const itemPrice = Number(item.price);
@@ -122,7 +121,7 @@ export function CartSidebarContent() {
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
 
       <div className="p-5 sm:p-6 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800 shrink-0">
         <div className="space-y-3 mb-6 text-sm sm:text-base font-medium">

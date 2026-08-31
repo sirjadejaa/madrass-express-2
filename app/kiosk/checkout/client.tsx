@@ -6,7 +6,6 @@ import { useKioskStore } from "@/lib/store/kiosk-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowLeft, CheckCircle2, AlertCircle, Tag, X } from "lucide-react";
 import { processCheckoutAction } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
@@ -218,7 +217,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
           <h3 className="text-2xl font-bold">Order Summary</h3>
         </div>
         
-        <ScrollArea className="flex-1 p-6">
+        <div className="flex-1 overflow-y-auto min-h-0 p-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="space-y-6">
             {cart.map(item => {
               const itemPrice = Number(item.price);
@@ -252,7 +251,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
 
         <div className="p-6 bg-background border-t space-y-4">
           {!appliedCouponCode ? (

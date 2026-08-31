@@ -183,7 +183,7 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
                 </div>
               </Button>
             } />
-            <SheetContent side="bottom" className="h-[90dvh] p-0 flex flex-col rounded-t-[2.5rem] bg-white dark:bg-zinc-950 shadow-2xl border-t-0">
+            <SheetContent side="bottom" className="h-[90dvh] p-0 flex flex-col rounded-t-[2.5rem] bg-white dark:bg-zinc-950 shadow-2xl border-t-0 overflow-hidden">
               <SheetTitle className="sr-only">Your Cart</SheetTitle>
               <div className="w-12 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full mx-auto mt-3 mb-1 shrink-0" />
               <CartSidebarContent />
