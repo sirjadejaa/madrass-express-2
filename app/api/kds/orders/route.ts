@@ -24,6 +24,7 @@ export async function GET(_req: NextRequest) {
         id: true,
         type: true,
         createdAt: true,
+        updatedAt: true,
         status: true,
         token: {
           select: {
