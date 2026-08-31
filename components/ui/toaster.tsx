@@ -13,14 +13,15 @@ function ToastItem({
   dismiss: (id: string) => void 
 }) {
   const { id, title, description, action, variant, open, ...props } = toast;
-  const isDestructive = variant === 'destructive' || (props as any).type === 'error';
+  const type = (props as any).type;
+  const isDestructive = variant === 'destructive' || type === 'error';
 
   useEffect(() => {
     if (!open) return;
     
     let duration = 3000;
     if (isDestructive) duration = 4000;
-    if ((props as any).type === 'warning') duration = 3000;
+    if (type === 'warning') duration = 3000;
     if (action) duration = Infinity; // Don't auto-dismiss if there's an action
 
     if (duration !== Infinity) {
@@ -29,7 +30,7 @@ function ToastItem({
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [open, isDestructive, action, (props as any).type, id, dismiss]);
+  }, [open, isDestructive, action, type, id, dismiss]);
 
   return (
     <div 
