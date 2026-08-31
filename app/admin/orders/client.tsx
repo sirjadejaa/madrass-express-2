@@ -20,7 +20,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Eye, Utensils, ShoppingBag, Receipt, CheckCircle2, Clock, MapPin, Phone, CreditCard, ReceiptIndianRupee } from "lucide-react";
+import { Eye, Utensils, ShoppingBag, Receipt, CheckCircle2, Clock, MapPin, Phone, CreditCard, ReceiptIndianRupee, User } from "lucide-react";
 
 export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -165,7 +165,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
                   <div>
                     <div className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-1">Customer</div>
                     <div className="font-semibold text-zinc-950 flex items-center">
-                      <UserIcon className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
+                      <User className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
                       {selectedOrder.customer?.name || "Guest"}
                     </div>
                   </div>
