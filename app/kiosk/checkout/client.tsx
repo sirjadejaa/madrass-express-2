@@ -212,7 +212,7 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
       </div>
 
       {/* Right Column: Summary */}
-      <div className="flex-none w-full lg:w-[450px] flex flex-col bg-card rounded-3xl overflow-hidden shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)]">
+      <div className="flex-none w-full lg:w-[450px] flex flex-col bg-card rounded-3xl overflow-hidden shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] max-h-[75vh] lg:max-h-none">
         <div className="p-6 bg-muted/30 border-b">
           <h3 className="text-2xl font-bold">Order Summary</h3>
         </div>

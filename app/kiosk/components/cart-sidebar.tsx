@@ -47,7 +47,7 @@ export function CartSidebarContent() {
   }
 
   return (
-    <div className="w-full h-full min-h-0 bg-zinc-50 dark:bg-zinc-950 flex flex-col z-20 shrink-0 overflow-hidden">
+    <div className="w-full flex-1 min-h-0 bg-zinc-50 dark:bg-zinc-950 flex flex-col z-20 overflow-hidden">
       <div className="p-5 sm:p-6 bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start shrink-0">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-3 text-zinc-900 dark:text-white tracking-tight">
