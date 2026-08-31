@@ -54,7 +54,6 @@ interface State {
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
-const autoDismissTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
@@ -75,6 +74,14 @@ const addToRemoveQueue = (toastId: string) => {
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
+      // PREVENT DUPLICATES
+      const isDuplicate = state.toasts.some(
+        (t) => t.title === action.toast.title && t.description === action.toast.description && t.open
+      );
+      if (isDuplicate) {
+        return state;
+      }
+
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
@@ -155,36 +162,9 @@ function toast({ ...props }: Toast) {
     },
   })
 
-  // Determine duration based on rules
-  let duration = 3000 // Default for success/info
-
-  if (props.variant === "destructive" || props.type === "error") {
-    duration = 4000
-  } else if (props.type === "warning") {
-    duration = 3000
-  }
-
-  // Action dialogs/confirmations do not auto-dismiss
-  if (props.action) {
-    duration = Infinity
-  }
-
-  if (duration !== Infinity) {
-    const timeout = setTimeout(() => {
-      dismiss()
-    }, duration)
-    autoDismissTimeouts.set(id, timeout)
-  }
-
   return {
     id: id,
-    dismiss: () => {
-      if (autoDismissTimeouts.has(id)) {
-        clearTimeout(autoDismissTimeouts.get(id))
-        autoDismissTimeouts.delete(id)
-      }
-      dismiss()
-    },
+    dismiss: dismiss,
     update,
   }
 }
@@ -206,13 +186,6 @@ function useToast() {
     ...state,
     toast,
     dismiss: (toastId?: string) => {
-      if (toastId && autoDismissTimeouts.has(toastId)) {
-        clearTimeout(autoDismissTimeouts.get(toastId))
-        autoDismissTimeouts.delete(toastId)
-      } else if (!toastId) {
-        autoDismissTimeouts.forEach((timeout) => clearTimeout(timeout))
-        autoDismissTimeouts.clear()
-      }
       dispatch({ type: "DISMISS_TOAST", toastId })
     },
   }
