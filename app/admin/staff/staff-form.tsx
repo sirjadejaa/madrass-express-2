@@ -144,6 +144,8 @@ export function StaffForm({ isOpen, onClose, initialData, restaurantId }: StaffF
                       <SelectItem value={Role.MANAGER}>Manager</SelectItem>
                       <SelectItem value={Role.KITCHEN}>Kitchen</SelectItem>
                       <SelectItem value={Role.COUNTER}>Counter</SelectItem>
+                      <SelectItem value={Role.KIOSK}>Kiosk</SelectItem>
+                      <SelectItem value={Role.DISPLAY}>Display</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
