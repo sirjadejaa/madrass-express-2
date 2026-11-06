@@ -43,6 +43,12 @@ enum OrderType {
   TAKEAWAY
 }
 
+// Order Source
+enum OrderSource {
+  KIOSK
+  QR_MOBILE
+}
+
 // Payment Methods
 enum PaymentMethod {
   UPI
@@ -206,9 +212,17 @@ model Table {
   id           String     @id @default(cuid())
   number       String
   qrCodeUrl    String?
+  qrToken      String?    @unique
+  isActive     Boolean    @default(true)
+  capacity     Int?
+  description  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   orders       Order[]
+
+  @@unique([restaurantId, number])
 }
 
 model Customer {
@@ -226,6 +240,7 @@ model Customer {
 model Order {
   id           String      @id @default(cuid()) // Unique internal ID
   type         OrderType
+  source       OrderSource @default(KIOSK)
   status       OrderStatus @default(NEW)
   totalAmount  Decimal     @db.Decimal(10, 2)
   
@@ -248,11 +263,13 @@ model Order {
   discountAmount Decimal?  @db.Decimal(10, 2)
   
   idempotencyKey String?     @unique
+  trackingToken  String?     @unique
   
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   
   @@index([status, createdAt])
+  @@index([source])
 }
 
 model Token {

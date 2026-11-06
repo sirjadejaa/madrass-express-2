@@ -33,7 +33,8 @@ export default function Home() {
 
       {/* Development Navigation Test Links */}
       <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6 text-sm font-medium text-stone-400 z-10 opacity-60 hover:opacity-100 transition-opacity">
-        <Link href="/kiosk" className="hover:text-stone-900 transition-colors">Kiosk</Link>
+        <Link href="/kiosk/menu" className="hover:text-amber-600 font-semibold transition-colors">Menu</Link>
+        <Link href="/admin/tables" className="hover:text-amber-600 font-semibold transition-colors">Tables QR</Link>
         <Link href="/kitchen" className="hover:text-stone-900 transition-colors">Kitchen</Link>
         <Link href="/display" className="hover:text-stone-900 transition-colors">Display</Link>
         <Link href="/admin" className="hover:text-stone-900 transition-colors">Admin</Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
@@ -20,10 +21,45 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Eye, Utensils, ShoppingBag, Receipt, CheckCircle2, Clock, MapPin, Phone, CreditCard, ReceiptIndianRupee, User } from "lucide-react";
+import { 
+  Eye, 
+  Utensils, 
+  ShoppingBag, 
+  Receipt, 
+  CheckCircle2, 
+  Clock, 
+  MapPin, 
+  Phone, 
+  CreditCard, 
+  ReceiptIndianRupee, 
+  User, 
+  Smartphone,
+  Search 
+} from "lucide-react";
 
 export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [sourceFilter, setSourceFilter] = useState<"ALL" | "QR_MOBILE" | "KIOSK">("ALL");
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "DINE_IN" | "TAKEAWAY">("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredOrders = useMemo(() => {
+    return initialOrders.filter((order) => {
+      const matchesSource =
+        sourceFilter === "ALL" || order.source === sourceFilter;
+      const matchesType =
+        typeFilter === "ALL" || order.type === typeFilter;
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        (order.token?.tokenNumber && order.token.tokenNumber.toString().includes(searchQuery)) ||
+        (order.customer?.name && order.customer.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (order.customer?.phone && order.customer.phone.includes(searchQuery)) ||
+        (order.table?.number && order.table.number.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        order.id.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesSource && matchesType && matchesSearch;
+    });
+  }, [initialOrders, sourceFilter, typeFilter, searchQuery]);
 
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
@@ -64,14 +100,145 @@ export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
         </div>
       </div>
 
-      {/* Desktop view: Table */}
-      <div className="rounded-2xl border border-zinc-100 bg-white shadow-sm overflow-hidden">
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative w-full sm:w-72 md:w-80">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+          <Input
+            placeholder="Search orders, token, table, phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-white border-zinc-200 text-xs sm:text-sm h-9 sm:h-10"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0 w-full sm:w-auto">
+          {/* Source Filter */}
+          <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl shrink-0">
+            <Button
+              variant={sourceFilter === "ALL" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSourceFilter("ALL")}
+              className="text-xs h-7 px-2.5"
+            >
+              All Sources
+            </Button>
+            <Button
+              variant={sourceFilter === "QR_MOBILE" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSourceFilter("QR_MOBILE")}
+              className="text-xs h-7 px-2.5 text-amber-700 hover:text-amber-800"
+            >
+              <Smartphone className="w-3 h-3 mr-1" /> QR Mobile
+            </Button>
+            <Button
+              variant={sourceFilter === "KIOSK" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSourceFilter("KIOSK")}
+              className="text-xs h-7 px-2.5"
+            >
+              Kiosk
+            </Button>
+          </div>
+
+          {/* Type Filter */}
+          <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl shrink-0">
+            <Button
+              variant={typeFilter === "ALL" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setTypeFilter("ALL")}
+              className="text-xs h-7 px-2.5"
+            >
+              All Types
+            </Button>
+            <Button
+              variant={typeFilter === "DINE_IN" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setTypeFilter("DINE_IN")}
+              className="text-xs h-7 px-2.5"
+            >
+              Dine In
+            </Button>
+            <Button
+              variant={typeFilter === "TAKEAWAY" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setTypeFilter("TAKEAWAY")}
+              className="text-xs h-7 px-2.5"
+            >
+              Takeaway
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Orders Card View (320px - 767px) */}
+      <div className="grid grid-cols-1 gap-3 md:hidden">
+        {filteredOrders.length === 0 ? (
+          <div className="p-8 text-center text-zinc-400 bg-white rounded-2xl border border-zinc-200 text-xs font-medium">
+            No orders found matching your filters.
+          </div>
+        ) : (
+          filteredOrders.map((order) => (
+            <div
+              key={order.id}
+              className="bg-white rounded-2xl border border-zinc-200/80 p-4 shadow-xs space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-black text-sm bg-zinc-100 text-zinc-800 border border-zinc-200 px-2.5 py-1 rounded-lg">
+                    #{order.token?.tokenNumber || "—"}
+                  </span>
+                  <div className="flex items-center text-xs font-semibold text-zinc-700">
+                    {getTypeIcon(order.type)}
+                    {order.type.replace("_", " ")}
+                    {order.table && <span className="ml-1 text-amber-600 font-bold">(T{order.table.number})</span>}
+                  </div>
+                </div>
+                {getStatusBadge(order.status)}
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-zinc-600 pt-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-zinc-900">{order.customer?.name || "Guest"}</span>
+                  {order.source === "QR_MOBILE" && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 font-bold text-[10px] px-1.5 py-0">
+                      <Smartphone className="w-2.5 h-2.5 mr-0.5" /> QR
+                    </Badge>
+                  )}
+                </div>
+                <span className="font-black text-sm text-zinc-950">
+                  ₹{Number(order.totalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
+                <div className="flex items-center gap-2">
+                  {getPaymentBadge(order.payment?.status)}
+                  <span className="text-zinc-400 font-medium">{format(new Date(order.createdAt), "h:mm a")}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedOrder(order)}
+                  className="h-8 text-xs font-bold text-amber-700 border-amber-200 hover:bg-amber-50"
+                >
+                  <Eye className="w-3.5 h-3.5 mr-1" /> View
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop view: Table (>= 768px) */}
+      <div className="hidden md:block rounded-2xl border border-zinc-100 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-zinc-50/80 border-b border-zinc-100">
               <TableRow className="hover:bg-transparent">
                 <TableHead className="font-bold text-zinc-500 uppercase tracking-widest text-[11px] h-12">Token</TableHead>
                 <TableHead className="font-bold text-zinc-500 uppercase tracking-widest text-[11px] h-12">Customer</TableHead>
+                <TableHead className="font-bold text-zinc-500 uppercase tracking-widest text-[11px] h-12">Source</TableHead>
                 <TableHead className="font-bold text-zinc-500 uppercase tracking-widest text-[11px] h-12">Type</TableHead>
                 <TableHead className="font-bold text-zinc-500 uppercase tracking-widest text-[11px] h-12">Total</TableHead>
                 <TableHead className="font-bold text-zinc-500 uppercase tracking-widest text-[11px] h-12">Payment</TableHead>
@@ -81,14 +248,14 @@ export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-zinc-100">
-              {initialOrders.length === 0 ? (
+              {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center h-40 text-zinc-400 font-medium">
-                    No orders found.
+                  <TableCell colSpan={9} className="text-center h-40 text-zinc-400 font-medium">
+                    No orders found matching your filters.
                   </TableCell>
                 </TableRow>
               ) : (
-                initialOrders.map((order) => (
+                filteredOrders.map((order) => (
                   <TableRow key={order.id} className="hover:bg-zinc-50/50 transition-colors group border-none">
                     <TableCell className="py-4">
                       <span className="font-bold text-zinc-950 bg-zinc-100 px-2 py-1 rounded-md text-sm">
@@ -98,6 +265,17 @@ export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
                     <TableCell className="py-4">
                       <div className="font-bold text-zinc-950">{order.customer?.name || "Guest"}</div>
                       {order.table && <div className="text-xs font-medium text-amber-600 mt-0.5">Table {order.table.number}</div>}
+                    </TableCell>
+                    <TableCell className="py-4">
+                      {order.source === "QR_MOBILE" ? (
+                        <Badge variant="outline" className="bg-amber-500/10 text-amber-700 border-amber-500/20 font-bold text-[11px] px-2 py-0.5">
+                          <Smartphone className="w-3 h-3 mr-1" /> QR Mobile
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-zinc-100 text-zinc-600 border-zinc-200 font-bold text-[11px] px-2 py-0.5">
+                          Kiosk
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex items-center text-sm font-semibold text-zinc-700">
@@ -132,7 +310,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
       </div>
 
       <Sheet open={!!selectedOrder} onOpenChange={(open: boolean) => !open && setSelectedOrder(null)}>
-        <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto border-l-0 shadow-2xl sm:rounded-l-2xl">
+        <SheetContent className="w-[92vw] sm:w-[540px] max-w-[540px] overflow-y-auto border-l-0 shadow-2xl sm:rounded-l-2xl p-4 sm:p-6">
           <SheetHeader className="mb-8 border-b border-zinc-100 pb-6">
             <div className="flex items-center justify-between">
               <SheetTitle className="text-2xl font-bold flex items-center">
@@ -174,6 +352,20 @@ export function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
                     <div className="font-semibold text-zinc-950 flex items-center">
                       <Phone className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
                       {selectedOrder.customer?.phone || "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-1">Source</div>
+                    <div className="font-semibold text-zinc-950 flex items-center">
+                      {selectedOrder.source === "QR_MOBILE" ? (
+                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 font-bold text-xs">
+                          <Smartphone className="w-3 h-3 mr-1" /> QR Mobile
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-zinc-100 text-zinc-700 font-bold text-xs">
+                          Kiosk
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div>

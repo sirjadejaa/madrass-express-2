@@ -54,9 +54,16 @@ const OrderCard = memo(({ order, actionLabel, onAction, buttonVariant }: any) =>
     <div className={`p-5 rounded-xl border transition-all ${isDelayed ? 'border-red-900/50 bg-red-950/20' : 'border-zinc-800 bg-zinc-900'} shadow-md`}>
       <div className="flex justify-between items-start mb-5 border-b border-zinc-800 pb-4">
         <div>
-          <div className="text-4xl font-black text-white tracking-tighter">#{order.token.tokenNumber}</div>
+          <div className="flex items-center gap-2">
+            <span className="text-4xl font-black text-white tracking-tighter">#{order.token.tokenNumber}</span>
+            {order.source === "QR_MOBILE" && (
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                QR Mobile
+              </span>
+            )}
+          </div>
           <div className={`text-[11px] font-bold uppercase mt-2 px-2.5 py-1 rounded-md inline-block tracking-wider ${isTakeaway ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-zinc-800 text-zinc-300 border border-zinc-700'}`}>
-            {isTakeaway ? 'Takeaway' : `Dine In - Table ${order.table?.number}`}
+            {isTakeaway ? 'Takeaway' : `Dine In - Table ${order.table?.number || "—"}`}
           </div>
         </div>
         <div className="text-right flex flex-col items-end">
@@ -230,6 +237,7 @@ export function KDSClient() {
   const filteredOrders = orders.filter(o => {
     if (filter === "DINE_IN" && o.type !== "DINE_IN") return false;
     if (filter === "TAKEAWAY" && o.type !== "TAKEAWAY") return false;
+    if (filter === "QR_MOBILE" && o.source !== "QR_MOBILE") return false;
     if (filter === "PENDING" && o.payment?.status !== "PAID") return false;
     if (filter === "PAY_DUE" && o.payment?.status !== "PAY_AT_COUNTER") return false;
     if (filter === "DELAYED" && differenceInMinutes(new Date(), new Date(o.createdAt)) < 15) return false;
@@ -244,7 +252,7 @@ export function KDSClient() {
     <div className="h-full w-full flex flex-col bg-zinc-950 text-zinc-100 p-2 md:p-6">
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap bg-zinc-900/80 backdrop-blur p-4 rounded-2xl border border-zinc-800 shadow-sm relative">
         <div className="flex gap-2 flex-wrap">
-          {["ALL", "DINE_IN", "TAKEAWAY", "PENDING", "DELAYED"].map(f => (
+          {["ALL", "DINE_IN", "TAKEAWAY", "QR_MOBILE", "PENDING", "DELAYED"].map(f => (
             <Button 
               key={f} 
               variant={filter === f ? "default" : "outline"} 

@@ -2,8 +2,10 @@ import { db } from "@/lib/db";
 import { KioskClient } from "./client";
 import { KioskCategory } from "../components/category-sidebar";
 import { KioskProduct } from "./types";
+import { cookies } from "next/headers";
+import { resolveTableByToken } from "@/lib/tables/table-service";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function KioskMenuPage() {
   const restaurant = await db.restaurant.findFirst({
@@ -109,6 +111,28 @@ export default async function KioskMenuPage() {
     order: c.order,
   }));
 
+  // Securely resolve table from QR session cookie if present
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get("madrass_table_session")?.value;
+  let tableSession: { id: string; number: string } | null = null;
+
+  if (sessionCookie) {
+    try {
+      const parsed = JSON.parse(sessionCookie);
+      if (parsed.qrToken) {
+        const verified = await resolveTableByToken(parsed.qrToken);
+        if (verified.valid && verified.table) {
+          tableSession = {
+            id: verified.table.id,
+            number: verified.table.number,
+          };
+        }
+      }
+    } catch {
+      // Ignore invalid or corrupted cookie
+    }
+  }
+
   return (
     <KioskClient 
       categories={mappedCategories} 
@@ -116,6 +140,7 @@ export default async function KioskMenuPage() {
       tables={tables}
       restaurantName={restaurant.name}
       taxPercent={restaurant.settings?.taxPercent ?? 5.0}
+      tableSession={tableSession}
     />
   );
 }

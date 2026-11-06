@@ -147,62 +147,62 @@ export default async function AdminDashboard({
       </div>
 
       {/* Metrics Row */}
-      <div className="grid gap-5 grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3.5 sm:gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         
-        <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
-          <div className="flex items-center justify-between mb-8">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
+          <div className="flex items-center justify-between mb-4 sm:mb-8">
             <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Revenue</span>
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
               <IndianRupee className="w-4 h-4 text-emerald-600" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-zinc-950 tracking-tight">₹{totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-            <p className="text-sm font-medium text-zinc-500 mt-2 flex items-center">
+            <div className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">₹{totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+            <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-2 flex items-center">
               <TrendingUp className="w-3.5 h-3.5 mr-1.5 text-emerald-500" />
               Avg ₹{averageOrderValue} / order
             </p>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
-          <div className="flex items-center justify-between mb-8">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
+          <div className="flex items-center justify-between mb-4 sm:mb-8">
             <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Orders</span>
             <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
               <Package className="w-4 h-4 text-blue-600" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-zinc-950 tracking-tight">{totalOrdersCount.toLocaleString()}</div>
-            <p className="text-sm font-medium text-zinc-500 mt-2">{filterDays === 1 ? 'Total orders today' : `Total orders in ${filterDays}d`}</p>
+            <div className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">{totalOrdersCount.toLocaleString()}</div>
+            <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-2">{filterDays === 1 ? 'Total orders today' : `Total orders in ${filterDays}d`}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
-          <div className="flex items-center justify-between mb-8">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
+          <div className="flex items-center justify-between mb-4 sm:mb-8">
             <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Pending</span>
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
               <Clock className="w-4 h-4 text-amber-600" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-zinc-950 tracking-tight">{pendingOrders.toLocaleString()}</div>
-            <p className="text-sm font-medium text-amber-600 mt-2 flex items-center">
+            <div className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">{pendingOrders.toLocaleString()}</div>
+            <p className="text-xs sm:text-sm font-medium text-amber-600 mt-2 flex items-center">
               Needs attention
             </p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
-          <div className="flex items-center justify-between mb-8">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col justify-between group hover:border-amber-500/20 transition-colors">
+          <div className="flex items-center justify-between mb-4 sm:mb-8">
             <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Preparing</span>
             <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
               <ChefHat className="w-4 h-4 text-orange-600" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-zinc-950 tracking-tight">{preparingOrders.toLocaleString()}</div>
-            <p className="text-sm font-medium text-zinc-500 mt-2">{readyOrders} ready for pickup</p>
+            <div className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">{preparingOrders.toLocaleString()}</div>
+            <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-2">{readyOrders} ready for pickup</p>
           </div>
         </div>
 

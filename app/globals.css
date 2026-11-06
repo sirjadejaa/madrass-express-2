@@ -60,3 +60,49 @@
   }
 }
 .hide-close-button > button { display: none !important; }
+
+/* Dedicated High-Quality Print Styling for Table QR Cards */
+@media print {
+  /* Hide non-printable elements */
+  header,
+  aside,
+  nav,
+  footer,
+  .print\:hidden,
+  [data-slot="dialog-overlay"],
+  button {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Single QR Card Print */
+  .qr-print-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    background: #ffffff !important;
+    border: 3px solid #000000 !important;
+    border-radius: 20px !important;
+    box-shadow: none !important;
+    padding: 32px 24px !important;
+    margin: 0 auto !important;
+    width: 320px !important;
+    max-width: 90% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  @page {
+    margin: 15mm;
+    size: auto;
+  }
+}

@@ -8,8 +8,13 @@ export function InactivityTimer({ timeoutMs = 120000 }: { timeoutMs?: number }) 
   const router = useRouter();
   const pathname = usePathname();
   const resetKiosk = useKioskStore((state) => state.resetKiosk);
+  const isQRSession = useKioskStore((state) => state.isQRSession);
+  const tableId = useKioskStore((state) => state.tableId);
 
   useEffect(() => {
+    // Never run inactivity reset on mobile QR ordering sessions or when table is active
+    if (isQRSession || tableId) return;
+
     // Don't run timer if we are already on the welcome screen
     if (pathname === "/kiosk") return;
 

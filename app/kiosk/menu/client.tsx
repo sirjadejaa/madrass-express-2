@@ -10,8 +10,9 @@ import { ProductGrid } from "../components/product-grid";
 import { ProductDetailModal } from "../components/product-detail-modal";
 import { CartSidebarDesktop, CartSidebarContent } from "../components/cart-sidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShoppingBag, Search } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Search, MapPin } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { OrderType } from "@prisma/client";
 
 interface KioskClientProps {
   categories: KioskCategory[];
@@ -19,13 +20,22 @@ interface KioskClientProps {
   tables: { id: string, number: string }[];
   restaurantName: string;
   taxPercent: number;
+  tableSession?: { id: string; number: string } | null;
 }
 
-export function KioskClient({ categories, products, tables, restaurantName, taxPercent }: KioskClientProps) {
+export function KioskClient({ categories, products, tables, restaurantName, taxPercent, tableSession }: KioskClientProps) {
   const router = useRouter();
-  const resetKiosk = useKioskStore(state => state.resetKiosk);
-  const setTaxPercent = useKioskStore(state => state.setTaxPercent);
-  const cart = useKioskStore(state => state.cart);
+  const {
+    cart,
+    resetKiosk,
+    setTaxPercent,
+    tableId,
+    tableName,
+    isQRSession,
+    setTable,
+    setOrderType,
+    setQRSession,
+  } = useKioskStore();
   
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<KioskProduct | null>(null);
@@ -37,8 +47,20 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
     setTaxPercent(taxPercent);
   }, [taxPercent, setTaxPercent]);
 
-  // Inactivity timeout
+  // Synchronize validated table session from QR scan
   useEffect(() => {
+    if (tableSession) {
+      setTable(tableSession.id, tableSession.number);
+      setOrderType(OrderType.DINE_IN);
+      setQRSession(true);
+    }
+  }, [tableSession, setTable, setOrderType, setQRSession]);
+
+  // Inactivity timeout: only active on kiosk hardware, NEVER on QR mobile table sessions
+  useEffect(() => {
+    if (isQRSession || tableSession || tableId) {
+      return;
+    }
     let timeoutId: NodeJS.Timeout;
     const resetTimer = () => {
       clearTimeout(timeoutId);
@@ -54,7 +76,7 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
       clearTimeout(timeoutId);
       events.forEach(e => document.removeEventListener(e, resetTimer));
     };
-  }, [resetKiosk, router]);
+  }, [resetKiosk, router, isQRSession, tableSession, tableId]);
 
   const cartItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = cart.reduce((acc, item) => {
@@ -74,19 +96,26 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
       {/* Mobile Header (Hidden on Desktop) */}
       <div className="lg:hidden flex flex-col bg-white dark:bg-zinc-950 border-b z-30 pt-safe-top">
         <div className="flex items-center justify-between p-4 h-16">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800"
-            onClick={() => {
-              resetKiosk();
-              router.replace("/kiosk");
-            }}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          {(isQRSession || tableSession || tableId) ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/25 rounded-full font-bold text-xs shadow-sm">
+              <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="truncate max-w-[130px]">Table {tableName || tableSession?.number}</span>
+            </div>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800"
+              onClick={() => {
+                resetKiosk();
+                router.replace("/kiosk");
+              }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
           
-          <h1 className="text-xl font-bold tracking-tight absolute left-1/2 -translate-x-1/2 truncate max-w-[200px]">
+          <h1 className="text-lg font-extrabold tracking-tight truncate max-w-[180px] text-zinc-900 dark:text-zinc-50">
             {restaurantName}
           </h1>
 
@@ -122,17 +151,19 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
       <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden relative">
         
         {/* Desktop Header/Back Button */}
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="hidden lg:flex absolute top-6 left-6 z-50 rounded-full bg-white dark:bg-zinc-950 shadow-md w-12 h-12 border-zinc-200 dark:border-zinc-800 hover:scale-105 transition-transform"
-          onClick={() => {
-            resetKiosk();
-            router.replace("/kiosk");
-          }}
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
+        {!(isQRSession || tableSession || tableId) && (
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="hidden lg:flex absolute top-6 left-6 z-50 rounded-full bg-white dark:bg-zinc-950 shadow-md w-12 h-12 border-zinc-200 dark:border-zinc-800 hover:scale-105 transition-transform"
+            onClick={() => {
+              resetKiosk();
+              router.replace("/kiosk");
+            }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        )}
 
         {/* Category Navigation */}
         <div className="z-20 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none shrink-0 lg:pt-24 lg:w-[240px]">
@@ -146,7 +177,15 @@ export function KioskClient({ categories, products, tables, restaurantName, taxP
         {/* Product Grid Area */}
         <div className="flex-1 flex flex-col relative overflow-hidden bg-zinc-50 dark:bg-zinc-950">
           <div className="absolute top-0 left-0 w-full p-8 pb-4 z-10 bg-gradient-to-b from-zinc-50 to-transparent dark:from-zinc-950 pointer-events-none hidden lg:block">
-            <h1 className="text-4xl font-black text-zinc-900 dark:text-white drop-shadow-sm ml-[120px] tracking-tight">{restaurantName}</h1>
+            <div className="flex items-center gap-4 ml-[120px]">
+              <h1 className="text-4xl font-black text-zinc-900 dark:text-white drop-shadow-sm tracking-tight">{restaurantName}</h1>
+              {(isQRSession || tableSession || tableName) && (
+                <div className="pointer-events-auto inline-flex items-center gap-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/25 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">
+                  <MapPin className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span>Table {tableName || tableSession?.number}</span>
+                </div>
+              )}
+            </div>
           </div>
           
           <ProductGrid 

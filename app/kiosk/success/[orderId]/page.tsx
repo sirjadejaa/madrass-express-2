@@ -39,6 +39,8 @@ export default async function SuccessPage({ params }: { params: { orderId: strin
           tokenNumber={order.token.tokenNumber} 
           paymentStatus={order.payment?.status || "PENDING"} 
           orderType={order.type}
+          source={order.source}
+          trackingToken={order.trackingToken}
           printerConfig={printer ? {
             name: printer.name,
             type: printer.type,

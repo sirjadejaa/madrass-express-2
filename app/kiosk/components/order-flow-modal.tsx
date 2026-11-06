@@ -13,10 +13,11 @@ import { useKioskStore } from "@/lib/store/kiosk-store";
 import { Utensils, ShoppingBag } from "lucide-react";
 
 export function OrderFlowModal({ tables }: { tables: { id: string, number: string }[] }) {
-  const { orderType, setOrderType, setTable } = useKioskStore();
+  const { orderType, tableId, isQRSession, setOrderType, setTable } = useKioskStore();
   const [selectedType, setSelectedType] = useState<OrderType | null>(null);
 
-  const isOpen = orderType === null;
+  // If table is already identified via QR scan or session, never show table selection modal
+  const isOpen = orderType === null && !isQRSession && !tableId;
 
   const handleSelectTakeaway = () => {
     setOrderType(OrderType.TAKEAWAY);

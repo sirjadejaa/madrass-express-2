@@ -6,7 +6,7 @@ import { useKioskStore } from "@/lib/store/kiosk-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CheckCircle2, AlertCircle, Tag, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertCircle, Tag, X, MapPin } from "lucide-react";
 import { processCheckoutAction } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
 import { OrderType } from "@prisma/client";
@@ -15,11 +15,26 @@ interface CheckoutClientProps {
   tables: { id: string, number: string }[];
   restaurantId: string;
   taxPercent: number;
+  tableSession?: { id: string; number: string } | null;
 }
 
-export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutClientProps) {
+export function CheckoutClient({ tables, restaurantId, taxPercent, tableSession }: CheckoutClientProps) {
   const router = useRouter();
-  const { cart, orderType, tableId, tableName, setOrderType, setTable, setTaxPercent, appliedCouponCode, discountAmount, applyCoupon, removeCoupon } = useKioskStore();
+  const { 
+    cart, 
+    orderType, 
+    tableId, 
+    tableName, 
+    isQRSession, 
+    setOrderType, 
+    setTable, 
+    setQRSession, 
+    setTaxPercent, 
+    appliedCouponCode, 
+    discountAmount, 
+    applyCoupon, 
+    removeCoupon 
+  } = useKioskStore();
   const { toast } = useToast();
 
   const [name, setName] = useState("");
@@ -34,6 +49,15 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
     // Generate unique key on mount for idempotency
     setIdempotencyKey(crypto.randomUUID());
   }, []);
+
+  // Lock table session if validated from QR
+  useEffect(() => {
+    if (tableSession) {
+      setTable(tableSession.id, tableSession.number);
+      setOrderType(OrderType.DINE_IN);
+      setQRSession(true);
+    }
+  }, [tableSession, setTable, setOrderType, setQRSession]);
 
   useEffect(() => {
     setTaxPercent(taxPercent);
@@ -174,39 +198,66 @@ export function CheckoutClient({ tables, restaurantId, taxPercent }: CheckoutCli
             </div>
           </div>
 
-          <div className="space-y-4">
-            <Label className="text-lg">Order Type</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div 
-                className={`border-2 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${orderType === OrderType.DINE_IN ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:bg-muted/50'}`}
-                onClick={() => setOrderType(OrderType.DINE_IN)}
-              >
-                <span className="text-xl font-bold">Dine In</span>
-              </div>
-              <div 
-                className={`border-2 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${orderType === OrderType.TAKEAWAY ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:bg-muted/50'}`}
-                onClick={() => setOrderType(OrderType.TAKEAWAY)}
-              >
-                <span className="text-xl font-bold">Takeaway</span>
-              </div>
-            </div>
-          </div>
-
-          {orderType === OrderType.DINE_IN && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
-              <Label className="text-lg">Table Number <span className="text-destructive">*</span></Label>
-              <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                {tables.map(t => (
-                  <div
-                    key={t.id}
-                    className={`h-14 flex items-center justify-center rounded-xl cursor-pointer text-lg font-bold transition-all ${tableId === t.id ? 'bg-primary text-primary-foreground shadow-md scale-105' : 'bg-muted hover:bg-muted/80 text-foreground'}`}
-                    onClick={() => setTable(t.id, t.number)}
-                  >
-                    {t.number}
+          {/* Order Type & Table Selection */}
+          {(isQRSession || tableSession) ? (
+            <div className="space-y-4">
+              <Label className="text-lg font-bold">Dine-In Table</Label>
+              <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black shadow-md shrink-0">
+                    <MapPin className="w-6 h-6" />
                   </div>
-                ))}
+                  <div>
+                    <div className="text-xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
+                      Table {tableName || tableSession?.number}
+                    </div>
+                    <div className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                      Dine-in verified via table QR scan
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-3 py-1.5 bg-amber-500/20 text-amber-800 dark:text-amber-300 rounded-full">
+                  Locked
+                </span>
               </div>
             </div>
+          ) : (
+            <>
+              <div className="space-y-4">
+                <Label className="text-lg">Order Type</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div 
+                    className={`border-2 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${orderType === OrderType.DINE_IN ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:bg-muted/50'}`}
+                    onClick={() => setOrderType(OrderType.DINE_IN)}
+                  >
+                    <span className="text-xl font-bold">Dine In</span>
+                  </div>
+                  <div 
+                    className={`border-2 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${orderType === OrderType.TAKEAWAY ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:bg-muted/50'}`}
+                    onClick={() => setOrderType(OrderType.TAKEAWAY)}
+                  >
+                    <span className="text-xl font-bold">Takeaway</span>
+                  </div>
+                </div>
+              </div>
+
+              {orderType === OrderType.DINE_IN && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
+                  <Label className="text-lg">Table Number <span className="text-destructive">*</span></Label>
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                    {tables.map(t => (
+                      <div
+                        key={t.id}
+                        className={`h-14 flex items-center justify-center rounded-xl cursor-pointer text-lg font-bold transition-all ${tableId === t.id ? 'bg-primary text-primary-foreground shadow-md scale-105' : 'bg-muted hover:bg-muted/80 text-foreground'}`}
+                        onClick={() => setTable(t.id, t.number)}
+                      >
+                        {t.number}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
