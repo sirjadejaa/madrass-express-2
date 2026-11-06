@@ -3,6 +3,7 @@
 import { createSharedOrder, CreateOrderPayload, CreateOrderResult } from "@/lib/orders/order-service";
 import { OrderSource, OrderType, PaymentMethod } from "@prisma/client";
 import { cookies } from "next/headers";
+import { resolveTableByToken } from "@/lib/tables/table-service";
 
 interface SubmitMobileOrderInput {
   idempotencyKey: string;
@@ -35,8 +36,12 @@ export async function submitMobileOrderAction(input: SubmitMobileOrderInput): Pr
     if (input.orderType === OrderType.DINE_IN && sessionCookie) {
       try {
         const parsed = JSON.parse(sessionCookie);
-        if (parsed.tableId) {
-          // Authoritative table from verified QR scan session
+        if (parsed.qrToken) {
+          const verified = await resolveTableByToken(parsed.qrToken);
+          if (verified.valid && verified.table) {
+            verifiedTableId = verified.table.id;
+          }
+        } else if (parsed.tableId) {
           verifiedTableId = parsed.tableId;
         }
       } catch {

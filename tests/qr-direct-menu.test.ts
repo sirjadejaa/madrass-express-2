@@ -136,33 +136,39 @@ describe("Unified QR Customer Homepage Flow", () => {
   });
 
   describe("Direct Landing on /kiosk/menu upon QR Scan", () => {
-    it("redirects directly to /kiosk/menu and sets session cookie for valid QR code", async () => {
-      const TableQRWelcomePage = (await import("@/app/m/t/[token]/page")).default;
+    it("redirects directly to /kiosk/menu and sets session cookie in Route Handler for valid QR code", async () => {
+      const { GET } = await import("@/app/m/t/[token]/route");
+      const { NextRequest } = await import("next/server");
 
-      await TableQRWelcomePage({ params: { token: "valid-qr-token-123" } });
+      const req = new NextRequest("https://madrass-express.com/m/t/valid-qr-token-123");
+      const response = await GET(req, { params: { token: "valid-qr-token-123" } });
 
-      // Verify cookie is set with resolved table and token
-      expect(mockCookieStore["madrass_table_session"]).toBeDefined();
-      const cookieData = JSON.parse(mockCookieStore["madrass_table_session"].value);
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe("https://madrass-express.com/kiosk/menu");
+
+      const sessionCookie = response.cookies.get("madrass_table_session");
+      expect(sessionCookie).toBeDefined();
+      expect(sessionCookie?.httpOnly).toBe(true);
+
+      const cookieData = JSON.parse(sessionCookie!.value);
       expect(cookieData.tableId).toBe("tbl-04");
       expect(cookieData.tableName).toBe("Table 04");
       expect(cookieData.qrToken).toBe("valid-qr-token-123");
-
-      // Verify direct redirection to /kiosk/menu without intermediate welcome screen
-      expect(mockRedirect).toHaveBeenCalledWith("/kiosk/menu");
     });
 
-    it("renders error state and does NOT redirect for invalid QR code", async () => {
-      const TableQRWelcomePage = (await import("@/app/m/t/[token]/page")).default;
+    it("redirects to /m/invalid-qr and clears session cookie for invalid QR code", async () => {
+      const { GET } = await import("@/app/m/t/[token]/route");
+      const { NextRequest } = await import("next/server");
 
-      const rendered = await TableQRWelcomePage({ params: { token: "invalid-token" } });
+      const req = new NextRequest("https://madrass-express.com/m/t/invalid-token");
+      const response = await GET(req, { params: { token: "invalid-token" } });
 
-      // Should not redirect
-      expect(mockRedirect).not.toHaveBeenCalled();
-      // Cookie should not be set
-      expect(mockCookieStore["madrass_table_session"]).toBeUndefined();
-      // Error UI element should be returned
-      expect(rendered).toBeDefined();
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toContain("/m/invalid-qr");
+
+      const sessionCookie = response.cookies.get("madrass_table_session");
+      // Cookie is deleted or has maxAge 0 / empty
+      expect(sessionCookie?.value || "").toBe("");
     });
   });
 

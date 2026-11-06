@@ -1,10 +1,17 @@
+import type { Metadata, Viewport } from "next";
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Madrass Express — Order at Table",
   description: "Browse menu, customize dishes, and order directly from your table.",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function MobileLayout({
