@@ -142,6 +142,36 @@ export async function getOrderTrackingStatus(trackingToken: string) {
     }));
   }
 
+  // Check for any pending incoming Table Arena challenges for this table
+  let incomingChallenge: any = null;
+  if (order.tableId && db.gameMatch?.findFirst) {
+    try {
+      const pendingMatch = await db.gameMatch.findFirst({
+        where: {
+          guestTableId: order.tableId,
+          status: "INVITED",
+          expiresAt: { gt: new Date() },
+        },
+        include: {
+          hostTable: { select: { number: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (pendingMatch) {
+        incomingChallenge = {
+          matchId: pendingMatch.id,
+          gameType: pendingMatch.gameType,
+          hostTableNumber: pendingMatch.hostTable?.number || "Unknown",
+          hostPlayerName: pendingMatch.hostPlayerName,
+          expiresAt: pendingMatch.expiresAt.toISOString(),
+        };
+      }
+    } catch {
+      // Non-fatal if table match query fails
+    }
+  }
+
   return {
     success: true,
     order: {
@@ -188,6 +218,16 @@ export async function getOrderTrackingStatus(trackingToken: string) {
         rewardEnabled: settings?.gameRewardEnabled ?? false,
         rewardMinScore: settings?.gameRewardMinScore ?? 75,
       },
+      // Table Arena Real-Time Multiplayer Games
+      arena: {
+        enabled: settings?.arenaEnabled ?? true,
+        crossTableEnabled: settings?.arenaCrossTableEnabled ?? true,
+        ticTacToeEnabled: settings?.arenaTicTacToeEnabled ?? true,
+        rpsEnabled: settings?.arenaRpsEnabled ?? true,
+        quizBattleEnabled: settings?.arenaQuizBattleEnabled ?? true,
+        inviteExpirySeconds: settings?.arenaInviteExpirySeconds ?? 180,
+      },
+      incomingChallenge,
       // Module 5: Call Waiter System
       serviceRequests: {
         enabled: settings?.serviceRequestsEnabled ?? true,

@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   X,
   Volume2,
+  Swords,
 } from "lucide-react";
 
 interface ExperienceSettingsFormProps {
@@ -69,6 +70,22 @@ export function ExperienceSettingsForm({
     initialSettings?.exploreMoreEnabled ?? true
   );
 
+  // Table Arena Settings
+  const [arenaEnabled, setArenaEnabled] = useState(initialSettings?.arenaEnabled ?? true);
+  const [arenaCrossTableEnabled, setArenaCrossTableEnabled] = useState(
+    initialSettings?.arenaCrossTableEnabled ?? true
+  );
+  const [arenaTicTacToeEnabled, setArenaTicTacToeEnabled] = useState(
+    initialSettings?.arenaTicTacToeEnabled ?? true
+  );
+  const [arenaRpsEnabled, setArenaRpsEnabled] = useState(initialSettings?.arenaRpsEnabled ?? true);
+  const [arenaQuizBattleEnabled, setArenaQuizBattleEnabled] = useState(
+    initialSettings?.arenaQuizBattleEnabled ?? true
+  );
+  const [arenaInviteExpirySeconds, setArenaInviteExpirySeconds] = useState(
+    initialSettings?.arenaInviteExpirySeconds ?? 180
+  );
+
   // Quiz Questions State
   const [questions, setQuestions] = useState<any[]>(initialQuestions);
   const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] = useState(false);
@@ -95,6 +112,12 @@ export function ExperienceSettingsForm({
         gameRewardCouponCode,
         gameRewardMinScore: Number(gameRewardMinScore),
         exploreMoreEnabled,
+        arenaEnabled,
+        arenaCrossTableEnabled,
+        arenaTicTacToeEnabled,
+        arenaRpsEnabled,
+        arenaQuizBattleEnabled,
+        arenaInviteExpirySeconds: Number(arenaInviteExpirySeconds),
       });
 
       if (res.error) {
@@ -483,7 +506,115 @@ export function ExperienceSettingsForm({
         )}
       </div>
 
-      {/* SECTION 4: Explore More Visibility */}
+      {/* SECTION 4: Table Arena Real-Time Multiplayer */}
+      <div className="bg-white rounded-2xl border border-zinc-100 shadow-xs overflow-hidden">
+        <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <Swords className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-zinc-900">
+                Table Arena: Real-Time Multiplayer Games
+              </h4>
+              <p className="text-xs text-zinc-500 font-medium">
+                Allow customers to play Tic-Tac-Toe, Rock Paper Scissors, and Quiz Battles while waiting for food.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-zinc-500">
+              {arenaEnabled ? "Enabled" : "Disabled"}
+            </span>
+            <Switch checked={arenaEnabled} onCheckedChange={setArenaEnabled} />
+          </div>
+        </div>
+
+        {arenaEnabled && (
+          <div className="p-6 bg-zinc-50/40 space-y-5">
+            {/* Cross Table Challenges Toggle */}
+            <div className="p-4 bg-white rounded-xl border border-zinc-200/80 flex items-center justify-between">
+              <div>
+                <h5 className="font-bold text-xs text-zinc-900">
+                  Cross-Table Multiplayer Challenges
+                </h5>
+                <p className="text-[11px] text-zinc-500 font-medium">
+                  Allow customers to challenge other tables in the dining room (with privacy protection).
+                </p>
+              </div>
+              <Switch
+                checked={arenaCrossTableEnabled}
+                onCheckedChange={setArenaCrossTableEnabled}
+              />
+            </div>
+
+            {/* Individual Games Toggles */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-zinc-700 block">
+                Available Multiplayer Games
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Tic-Tac-Toe */}
+                <div className="p-3 bg-white rounded-xl border border-zinc-200/70 flex items-center justify-between">
+                  <div>
+                    <h6 className="font-bold text-xs text-zinc-900">Tic-Tac-Toe</h6>
+                    <span className="text-[10px] text-zinc-400">Classic 3x3 match</span>
+                  </div>
+                  <Switch
+                    checked={arenaTicTacToeEnabled}
+                    onCheckedChange={setArenaTicTacToeEnabled}
+                  />
+                </div>
+
+                {/* Rock Paper Scissors */}
+                <div className="p-3 bg-white rounded-xl border border-zinc-200/70 flex items-center justify-between">
+                  <div>
+                    <h6 className="font-bold text-xs text-zinc-900">Rock Paper Scissors</h6>
+                    <span className="text-[10px] text-zinc-400">Best of 3 rapid clash</span>
+                  </div>
+                  <Switch
+                    checked={arenaRpsEnabled}
+                    onCheckedChange={setArenaRpsEnabled}
+                  />
+                </div>
+
+                {/* Quiz Battle */}
+                <div className="p-3 bg-white rounded-xl border border-zinc-200/70 flex items-center justify-between">
+                  <div>
+                    <h6 className="font-bold text-xs text-zinc-900">Quiz Battle</h6>
+                    <span className="text-[10px] text-zinc-400">5-question speed trivia</span>
+                  </div>
+                  <Switch
+                    checked={arenaQuizBattleEnabled}
+                    onCheckedChange={setArenaQuizBattleEnabled}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Invite Expiry Seconds */}
+            <div className="space-y-1.5 max-w-xs">
+              <label className="text-xs font-bold text-zinc-700">
+                Cross-Table Invitation Expiry (Seconds)
+              </label>
+              <Input
+                type="number"
+                min="30"
+                max="600"
+                value={arenaInviteExpirySeconds}
+                onChange={(e) => setArenaInviteExpirySeconds(Number(e.target.value))}
+                className="bg-white rounded-xl text-xs h-10"
+              />
+              <span className="text-[10px] text-zinc-400">
+                Pending challenges automatically cancel if not accepted within this window (default 180s).
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 5: Explore More Visibility */}
       <div className="bg-white rounded-2xl border border-zinc-100 shadow-xs p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">

@@ -26,6 +26,12 @@ export async function updateCustomerExperienceSettingsAction(data: {
   serviceRequestsEnabled: boolean;
   serviceRequestCooldownSeconds: number;
   notificationSoundEnabled: boolean;
+  arenaEnabled?: boolean;
+  arenaCrossTableEnabled?: boolean;
+  arenaTicTacToeEnabled?: boolean;
+  arenaRpsEnabled?: boolean;
+  arenaQuizBattleEnabled?: boolean;
+  arenaInviteExpirySeconds?: number;
 }) {
   try {
     const session = await checkAdminAuth();
@@ -47,6 +53,12 @@ export async function updateCustomerExperienceSettingsAction(data: {
         serviceRequestsEnabled: data.serviceRequestsEnabled,
         serviceRequestCooldownSeconds: Math.max(10, Number(data.serviceRequestCooldownSeconds) || 60),
         notificationSoundEnabled: data.notificationSoundEnabled,
+        arenaEnabled: data.arenaEnabled ?? true,
+        arenaCrossTableEnabled: data.arenaCrossTableEnabled ?? true,
+        arenaTicTacToeEnabled: data.arenaTicTacToeEnabled ?? true,
+        arenaRpsEnabled: data.arenaRpsEnabled ?? true,
+        arenaQuizBattleEnabled: data.arenaQuizBattleEnabled ?? true,
+        arenaInviteExpirySeconds: Math.max(30, Number(data.arenaInviteExpirySeconds) || 180),
       },
       update: {
         wifiEnabled: data.wifiEnabled,
@@ -61,6 +73,12 @@ export async function updateCustomerExperienceSettingsAction(data: {
         serviceRequestsEnabled: data.serviceRequestsEnabled,
         serviceRequestCooldownSeconds: Math.max(10, Number(data.serviceRequestCooldownSeconds) || 60),
         notificationSoundEnabled: data.notificationSoundEnabled,
+        arenaEnabled: data.arenaEnabled ?? true,
+        arenaCrossTableEnabled: data.arenaCrossTableEnabled ?? true,
+        arenaTicTacToeEnabled: data.arenaTicTacToeEnabled ?? true,
+        arenaRpsEnabled: data.arenaRpsEnabled ?? true,
+        arenaQuizBattleEnabled: data.arenaQuizBattleEnabled ?? true,
+        arenaInviteExpirySeconds: Math.max(30, Number(data.arenaInviteExpirySeconds) || 180),
       },
     });
 

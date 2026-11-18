@@ -9,6 +9,8 @@ import {
   getQuizQuestionsAction,
   submitQuizAction,
 } from "./actions";
+import { respondToArenaChallengeAction } from "./arena-actions";
+import { TableArenaModal } from "@/components/arena/table-arena-modal";
 import { OrderStatus, PaymentStatus, OrderType, ServiceRequestType } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +36,7 @@ import {
   Utensils,
   X,
   Plus,
+  Swords,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -69,6 +72,79 @@ export function OrderTrackingClient({
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
   const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
   const [quizResult, setQuizResult] = useState<any | null>(null);
+
+  // Table Arena Multiplayer state
+  const [isArenaModalOpen, setIsArenaModalOpen] = useState(false);
+  const [arenaInitialMatch, setArenaInitialMatch] = useState<any | null>(null);
+  const [isRespondingToChallenge, setIsRespondingToChallenge] = useState(false);
+
+  // Stable client Player ID
+  const [arenaPlayerId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      let stored = localStorage.getItem("madrass_arena_pid");
+      if (!stored) {
+        stored = `p_${Math.random().toString(36).substring(2, 9)}_${Date.now().toString(36)}`;
+        localStorage.setItem("madrass_arena_pid", stored);
+      }
+      return stored;
+    }
+    return `p_${Date.now()}`;
+  });
+
+  const arenaSettings = order.arena || {
+    enabled: true,
+    crossTableEnabled: true,
+    ticTacToeEnabled: true,
+    rpsEnabled: true,
+    quizBattleEnabled: true,
+    inviteExpirySeconds: 180,
+  };
+
+  const handleRespondToChallenge = async (accept: boolean) => {
+    if (!order.incomingChallenge) return;
+    setIsRespondingToChallenge(true);
+    try {
+      const res = await respondToArenaChallengeAction({
+        trackingToken,
+        matchId: order.incomingChallenge.matchId,
+        playerId: arenaPlayerId,
+        accept,
+      });
+
+      if (res.error) {
+        toast({
+          title: "Challenge Update",
+          description: res.error,
+          variant: "destructive",
+        });
+      } else if (accept && res.match) {
+        setArenaInitialMatch(res.match);
+        setIsArenaModalOpen(true);
+        toast({
+          title: "Challenge Accepted! ⚔️",
+          description: `Connected to battle with Table ${order.incomingChallenge.hostTableNumber}.`,
+        });
+      } else {
+        toast({
+          title: "Challenge Declined",
+          description: "You declined the table battle invitation.",
+        });
+      }
+
+      const updated = await getOrderTrackingStatus(trackingToken);
+      if (updated.success && updated.order) {
+        setOrder(updated.order);
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to respond to challenge.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRespondingToChallenge(false);
+    }
+  };
 
   // Polling for live status updates every 4 seconds
   useEffect(() => {
@@ -322,6 +398,54 @@ export function OrderTrackingClient({
 
       {/* Main Order Card */}
       <main className="p-4 space-y-4 max-w-lg mx-auto w-full">
+        {/* ============================================================== */}
+        {/* INCOMING TABLE ARENA CHALLENGE BANNER */}
+        {/* ============================================================== */}
+        {order.incomingChallenge && (
+          <div className="bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 text-white rounded-3xl p-5 shadow-lg border border-white/20 animate-in fade-in slide-in-from-top-3 duration-300 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center font-bold text-white shrink-0">
+                  <Swords className="w-5 h-5 text-white" />
+                </div>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-200">
+                    Incoming Table Battle!
+                  </span>
+                  <h4 className="font-black text-sm text-white leading-tight">
+                    Table {order.incomingChallenge.hostTableNumber} challenged you to a game! ⚔️
+                  </h4>
+                  <p className="text-[11px] text-white/80">
+                    {order.incomingChallenge.gameType === "TIC_TAC_TOE"
+                      ? "Tic-Tac-Toe Match"
+                      : order.incomingChallenge.gameType === "ROCK_PAPER_SCISSORS"
+                      ? "Rock Paper Scissors Clash"
+                      : "Food Quiz Battle"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <Button
+                onClick={() => handleRespondToChallenge(true)}
+                disabled={isRespondingToChallenge}
+                className="flex-1 bg-white hover:bg-amber-50 text-rose-950 font-black text-xs h-10 rounded-xl shadow-xs"
+              >
+                {isRespondingToChallenge ? "Joining..." : "Accept & Play ⚔️"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleRespondToChallenge(false)}
+                disabled={isRespondingToChallenge}
+                className="bg-black/20 hover:bg-black/30 text-white border-white/20 font-bold text-xs h-10 px-4 rounded-xl"
+              >
+                Decline
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Token Banner Card */}
         <div className="bg-white rounded-3xl p-6 border border-zinc-100 shadow-sm text-center space-y-4 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600" />
@@ -671,6 +795,38 @@ export function OrderTrackingClient({
               className="bg-white text-indigo-900 hover:bg-violet-50 font-black text-xs h-10 px-4 rounded-xl shadow-xs transition-all active:scale-95 shrink-0"
             >
               Play Quiz
+            </Button>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* MODULE: Table Arena Multiplayer Games */}
+        {/* ============================================================== */}
+        {order.orderType === OrderType.DINE_IN && arenaSettings.enabled && (
+          <div className="bg-gradient-to-r from-rose-500 via-amber-600 to-amber-500 text-white rounded-3xl p-5 shadow-xs flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5">
+                <Swords className="w-4 h-4 text-amber-200" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-rose-100">
+                  Play Together
+                </span>
+              </div>
+              <h3 className="font-black text-sm tracking-tight">
+                Table Arena Multiplayer ⚔️
+              </h3>
+              <p className="text-[11px] text-amber-100 font-medium">
+                Play Tic-Tac-Toe, RPS & Quiz Battles with friends or other tables!
+              </p>
+            </div>
+
+            <Button
+              onClick={() => {
+                setArenaInitialMatch(null);
+                setIsArenaModalOpen(true);
+              }}
+              className="bg-white text-rose-950 hover:bg-rose-50 font-black text-xs h-10 px-4 rounded-xl shadow-xs transition-all active:scale-95 shrink-0"
+            >
+              Play Arena
             </Button>
           </div>
         )}
@@ -1081,6 +1237,19 @@ export function OrderTrackingClient({
           </div>
         </div>
       )}
+
+      {/* TABLE ARENA MULTIPLAYER MODAL */}
+      <TableArenaModal
+        isOpen={isArenaModalOpen}
+        onClose={() => {
+          setIsArenaModalOpen(false);
+          setArenaInitialMatch(null);
+        }}
+        trackingToken={trackingToken}
+        tableNumber={order.tableNumber || "00"}
+        arenaSettings={arenaSettings}
+        initialMatch={arenaInitialMatch}
+      />
     </div>
   );
 }

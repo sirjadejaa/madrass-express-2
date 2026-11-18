@@ -74,6 +74,31 @@ enum ServiceRequestStatus {
   CANCELLED
 }
 
+// Table Arena: Multiplayer Game Types
+enum GameType {
+  TIC_TAC_TOE
+  ROCK_PAPER_SCISSORS
+  QUIZ_BATTLE
+}
+
+// Table Arena: Match Statuses
+enum GameMatchStatus {
+  WAITING_FOR_PLAYER
+  INVITED
+  READY
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+// Table Arena: Game Modes
+enum GameMode {
+  SAME_TABLE
+  CROSS_TABLE
+  PASS_AND_PLAY
+}
+
 model Restaurant {
   id          String   @id @default(cuid())
   name        String
@@ -93,6 +118,7 @@ model Restaurant {
   serviceRequests ServiceRequest[]
   quizQuestions   QuizQuestion[]
   gameRewardClaims GameRewardClaim[]
+  gameMatches     GameMatch[]
 }
 
 model User {
@@ -244,6 +270,8 @@ model Table {
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   orders          Order[]
   serviceRequests ServiceRequest[]
+  hostMatches     GameMatch[]      @relation("HostMatches")
+  guestMatches    GameMatch[]      @relation("GuestMatches")
 
   @@unique([restaurantId, number])
 }
@@ -389,6 +417,14 @@ model RestaurantSetting {
   serviceRequestsEnabled        Boolean    @default(true)
   serviceRequestCooldownSeconds Int        @default(60)
   notificationSoundEnabled      Boolean    @default(true)
+
+  // Table Arena Multiplayer
+  arenaEnabled                  Boolean    @default(true)
+  arenaCrossTableEnabled        Boolean    @default(true)
+  arenaTicTacToeEnabled         Boolean    @default(true)
+  arenaRpsEnabled               Boolean    @default(true)
+  arenaQuizBattleEnabled        Boolean    @default(true)
+  arenaInviteExpirySeconds      Int        @default(180)
 }
 
 model DisplaySetting {
@@ -481,4 +517,58 @@ model GameRewardClaim {
 
   @@index([restaurantId, orderId])
   @@index([restaurantId, tableId])
+}
+
+model GameMatch {
+  id                  String          @id @default(cuid())
+  restaurantId        String
+  restaurant          Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  gameType            GameType
+  mode                GameMode        @default(SAME_TABLE)
+  status              GameMatchStatus @default(WAITING_FOR_PLAYER)
+
+  hostTableId         String
+  hostTable           Table           @relation("HostMatches", fields: [hostTableId], references: [id], onDelete: Cascade)
+  hostPlayerId        String
+  hostPlayerName      String          @default("Player 1")
+
+  guestTableId        String?
+  guestTable          Table?          @relation("GuestMatches", fields: [guestTableId], references: [id], onDelete: SetNull)
+  guestPlayerId       String?
+  guestPlayerName     String?
+
+  currentTurnPlayerId String?
+  winnerPlayerId      String?
+  isDraw              Boolean         @default(false)
+  version             Int             @default(1)
+  
+  gameState           Json
+  inviteCode          String?
+  expiresAt           DateTime
+  
+  moves               GameMove[]
+  
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  startedAt           DateTime?
+  completedAt         DateTime?
+
+  @@index([restaurantId, status])
+  @@index([hostTableId, status])
+  @@index([guestTableId, status])
+  @@index([inviteCode])
+  @@index([createdAt])
+}
+
+model GameMove {
+  id         String    @id @default(cuid())
+  matchId    String
+  match      GameMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerId   String
+  moveNumber Int
+  moveData   Json
+  createdAt  DateTime  @default(now())
+
+  @@index([matchId, moveNumber])
 }
