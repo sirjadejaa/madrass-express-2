@@ -44,18 +44,26 @@ export function SuccessClient({
 
   useEffect(() => {
     // Auto redirect logic:
-    // Only auto-redirect to kiosk screen for physical kiosk; on mobile stay or redirect to menu
-    if (isMobileQR) {
-      return; // Do not boot mobile customers off their success screen
+    // On mobile QR session, smoothly transition to the interactive waiting screen
+    if (isMobileQR && trackingToken) {
+      const timer = setTimeout(() => {
+        router.replace(`/m/order/${trackingToken}`);
+      }, 1200);
+      return () => clearTimeout(timer);
     }
 
+    if (isMobileQR) {
+      return; // Stay on screen if no tracking token
+    }
+
+    // Physical kiosk auto-resets after 15s
     const timer = setTimeout(() => {
       resetKiosk();
       router.replace("/kiosk");
     }, 15000);
 
     return () => clearTimeout(timer);
-  }, [router, resetKiosk, isMobileQR]);
+  }, [router, resetKiosk, isMobileQR, trackingToken]);
 
   const handleFinish = () => {
     resetKiosk();

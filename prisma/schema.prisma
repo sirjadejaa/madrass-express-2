@@ -56,6 +56,24 @@ enum PaymentMethod {
   CASH
 }
 
+// Service Request Types
+enum ServiceRequestType {
+  CALL_WAITER
+  WATER
+  EXTRA_PLATES
+  CUTLERY
+  BILL
+  OTHER
+}
+
+// Service Request Statuses
+enum ServiceRequestStatus {
+  PENDING
+  ACCEPTED
+  COMPLETED
+  CANCELLED
+}
+
 model Restaurant {
   id          String   @id @default(cuid())
   name        String
@@ -72,6 +90,9 @@ model Restaurant {
   displaySetting DisplaySetting?
   printers    PrinterSetting[]
   coupons     Coupon[]
+  serviceRequests ServiceRequest[]
+  quizQuestions   QuizQuestion[]
+  gameRewardClaims GameRewardClaim[]
 }
 
 model User {
@@ -221,7 +242,8 @@ model Table {
   updatedAt    DateTime   @updatedAt
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  orders       Order[]
+  orders          Order[]
+  serviceRequests ServiceRequest[]
 
   @@unique([restaurantId, number])
 }
@@ -259,6 +281,7 @@ model Order {
   
   payment      Payment?
   items        OrderItem[]
+  serviceRequests ServiceRequest[]
   
   couponCode     String?
   discountAmount Decimal?  @db.Decimal(10, 2)
@@ -344,12 +367,28 @@ model Coupon {
 }
 
 model RestaurantSetting {
-  id                    String     @id @default(cuid())
-  restaurantId          String     @unique
-  restaurant            Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  dailyTokenStartNumber Int        @default(1)
-  currency              String     @default("INR")
-  taxPercent            Float      @default(5.0)
+  id                            String     @id @default(cuid())
+  restaurantId                  String     @unique
+  restaurant                    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  dailyTokenStartNumber         Int        @default(1)
+  currency                      String     @default("INR")
+  taxPercent                    Float      @default(5.0)
+
+  // Customer Experience, Wi-Fi and Games
+  wifiEnabled                   Boolean    @default(false)
+  wifiSSID                      String?
+  wifiPassword                  String?
+  wifiInstructions              String?
+
+  gamesEnabled                  Boolean    @default(true)
+  gameRewardEnabled             Boolean    @default(false)
+  gameRewardCouponCode          String?
+  gameRewardMinScore            Int        @default(80)
+
+  exploreMoreEnabled            Boolean    @default(true)
+  serviceRequestsEnabled        Boolean    @default(true)
+  serviceRequestCooldownSeconds Int        @default(60)
+  notificationSoundEnabled      Boolean    @default(true)
 }
 
 model DisplaySetting {
@@ -382,4 +421,64 @@ model AuditLog {
   userId    String?
   details   Json?
   createdAt DateTime @default(now())
+}
+
+model ServiceRequest {
+  id           String               @id @default(cuid())
+  type         ServiceRequestType
+  status       ServiceRequestStatus @default(PENDING)
+  notes        String?              // Optional validated customer text for OTHER
+  cancelReason String?
+
+  tableId      String
+  table        Table                @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  restaurantId String
+  restaurant   Restaurant           @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  orderId      String?
+  order        Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  acceptedAt   DateTime?
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+
+  @@index([restaurantId, status])
+  @@index([tableId, status])
+  @@index([createdAt])
+}
+
+model QuizQuestion {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  question     String
+  options      String[]
+  correctIndex Int        @default(0)
+  explanation  String?
+  isActive     Boolean    @default(true)
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([restaurantId, isActive])
+}
+
+model GameRewardClaim {
+  id            String     @id @default(cuid())
+  restaurantId  String
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orderId       String?
+  tableId       String?
+  customerPhone String?
+  score         Int
+  total         Int
+  rewardCode    String
+  rewardDetails String?
+  claimedAt     DateTime   @default(now())
+
+  @@index([restaurantId, orderId])
+  @@index([restaurantId, tableId])
 }

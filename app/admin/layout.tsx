@@ -26,7 +26,8 @@ import {
   Ticket,
   Printer,
   Wrench,
-  Check
+  Check,
+  BellRing
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ export const secondaryNavSections = [
   {
     title: "Operations & Sales",
     items: [
+      { title: "Service Requests", href: "/admin/service-requests", icon: BellRing },
       { title: "Payments", href: "/admin/payments", icon: CreditCard },
       { title: "Customers", href: "/admin/customers", icon: Users },
       { title: "Reports & Analytics", href: "/admin/reports", icon: BarChart3 },
@@ -77,6 +79,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
+
+  // Poll for pending service requests count
+  useEffect(() => {
+    if (!session) return;
+    const checkRequests = async () => {
+      try {
+        const res = await fetch("/api/admin/service-requests");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && typeof data.pendingCount === "number") {
+            setPendingRequestsCount(data.pendingCount);
+          }
+        }
+      } catch {
+        // silent
+      }
+    };
+    checkRequests();
+    const interval = setInterval(checkRequests, 8000);
+    return () => clearInterval(interval);
+  }, [session]);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -273,7 +297,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           <Icon className={cn("w-4 h-4", active ? "text-amber-400" : "text-zinc-500 group-hover:text-zinc-300")} />
                           <span>{item.title}</span>
                         </div>
-                        {active && <Check className="w-3 h-3 text-amber-400" />}
+                        <div className="flex items-center gap-2">
+                          {item.href === "/admin/service-requests" && pendingRequestsCount > 0 && (
+                            <span className="bg-red-500 text-white font-black text-[10px] px-1.5 py-0.5 rounded-full animate-pulse">
+                              {pendingRequestsCount}
+                            </span>
+                          )}
+                          {active && <Check className="w-3 h-3 text-amber-400" />}
+                        </div>
                       </Link>
                     );
                   })}
@@ -365,7 +396,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <Icon className={cn("w-4 h-4", active ? "text-amber-400" : "text-zinc-500")} />
                             <span>{item.title}</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
+                          <div className="flex items-center gap-2">
+                            {item.href === "/admin/service-requests" && pendingRequestsCount > 0 && (
+                              <span className="bg-red-500 text-white font-black text-[10px] px-1.5 py-0.5 rounded-full animate-pulse">
+                                {pendingRequestsCount}
+                              </span>
+                            )}
+                            <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
+                          </div>
                         </Link>
                       );
                     })}
